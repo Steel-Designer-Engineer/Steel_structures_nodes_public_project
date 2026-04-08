@@ -1,0 +1,655 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:HingedJoint.Maui.ViewModels"
+             x:Class="HingedJoint.Maui.MainPage"
+             x:Name="ThisPage"
+             x:DataType="vm:MainViewModel"
+             Title="Анализ узла"
+             BackgroundColor="{StaticResource Surface}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="8">
+
+            <!-- Статус -->
+            <Label Text="{Binding Status}" FontSize="12" TextColor="{StaticResource Muted}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+            <!-- ═══ Выбор узла ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Выбор узлового соединения" Style="{StaticResource SectionHeader}" />
+
+                    <Label Text="Имя группы" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ConnectionNames}"
+                            SelectedItem="{Binding SelectedName}" />
+
+                    <Label Text="Профиль колонны" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ProfileColumns}"
+                            SelectedItem="{Binding SelectedProfileColumn}" />
+
+                    <Label Text="Профиль балки" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ProfileBeams}"
+                            SelectedItem="{Binding SelectedProfileBeam}" />
+
+                    <Label Text="Код соединения" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ConnectionCodes}"
+                            SelectedItem="{Binding SelectedConnectionCode}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Превью узла ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Preview" Style="{StaticResource SectionHeader}" />
+                    <Border StrokeThickness="1" Stroke="{StaticResource Muted}" BackgroundColor="White"
+                            Padding="4" HeightRequest="400" HorizontalOptions="Fill">
+                        <Grid>
+                            <Image Source="{Binding SelectedNodeImage}" Aspect="AspectFit"
+                                   HorizontalOptions="Fill" VerticalOptions="Fill" />
+                            <Label Text="no image" FontAttributes="Italic" TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                   IsVisible="{Binding SelectedNodeImage, Converter={StaticResource IsNullConverter}}" />
+
+                            <!-- Стрелка влево -->
+                            <Button Text="◀" FontSize="16"
+                                    HorizontalOptions="Start" VerticalOptions="Center"
+                                    BackgroundColor="#CCFFFFFF" TextColor="#333"
+                                    WidthRequest="40" HeightRequest="40"
+                                    BorderWidth="0" CornerRadius="20"
+                                    IsVisible="{Binding HasMultipleImages}"
+                                    Command="{Binding PrevImageCommand}" />
+
+                            <!-- Стрелка вправо -->
+                            <Button Text="▶" FontSize="16"
+                                    HorizontalOptions="End" VerticalOptions="Center"
+                                    BackgroundColor="#CCFFFFFF" TextColor="#333"
+                                    WidthRequest="40" HeightRequest="40"
+                                    BorderWidth="0" CornerRadius="20"
+                                    IsVisible="{Binding HasMultipleImages}"
+                                    Command="{Binding NextImageCommand}" />
+
+                            <!-- Индикатор номера -->
+                            <Frame BackgroundColor="#CCFFFFFF" Padding="6,2" CornerRadius="4" HasShadow="False" BorderColor="Transparent"
+                                   HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,6"
+                                   IsVisible="{Binding HasMultipleImages}">
+                                <Label Text="{Binding ImageIndexText}" FontSize="12" FontAttributes="Bold" TextColor="#555" />
+                            </Frame>
+                        </Grid>
+                    </Border>
+                    <Label Text="{Binding SelectedNodeDescription}" FontSize="13" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Несущая способность ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Несущая способность" Style="{StaticResource SectionHeader}" />
+                    <Label Text="{Binding TableBrand, StringFormat='Марка: {0}'}" FontSize="13" TextColor="{StaticResource Muted}" />
+
+                    <!-- Продольные силы -->
+                    <Label Text="Продольные силы" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Nt, кН:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding NtValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Nc, кН:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding NcValue}" Style="{StaticResource FieldValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="N, кН:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding NValue}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Поперечные силы -->
+                    <Label Text="Поперечные силы" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Qy, кН:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding QyValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Qz, кН:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding QzValue}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Моменты -->
+                    <Label Text="Моменты" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Mx, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding MxValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="My, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding MyValue}" Style="{StaticResource FieldValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Mz, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding MzValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Mw, кН·м²:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding MwValue}" Style="{StaticResource FieldValue}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Mneg, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding MnegValue}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Жёсткость и коэффициенты ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Жёсткость" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sj, кН·м/рад:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding SjValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Sjo, кН·м/рад:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding SjoValue}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Коэффициенты взаимодействия" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="α:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding AlphaValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="β:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BetaValue}" Style="{StaticResource FieldValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="γ:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding GammaValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="δ:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding DeltaValue}" Style="{StaticResource FieldValue}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="ε:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding EpsilonValue}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="λ:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding LambdaValue}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Геометрия ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Геометрия" Style="{StaticResource SectionHeader}" />
+
+                    <!-- Колонна -->
+                    <Label Text="{Binding ColumnProfile, StringFormat='Колонна: {0}'}" FontSize="13" FontAttributes="Bold" Margin="0,4,0,0" />
+
+                    <Label Text="Линейные размеры" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnH}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnB}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="s, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ColumnS}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding ColumnT}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Площадь и масса" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="A, см²:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnA}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="P, кг/м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnP}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Моменты инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Ix, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnIx}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Iy, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnIy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Iz, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ColumnIz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Моменты сопротивления" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Wy, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnWy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Wz, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnWz}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Wx, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ColumnWx}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Статические моменты" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sy, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnSy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Sz, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnSz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Радиусы инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="iy, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Columniy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="iz, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding Columniz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Координаты центра тяжести" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="xo, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ColumnXo}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="yo, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding ColumnYo}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Балка -->
+                    <Label Text="{Binding BeamProfile, StringFormat='Балка: {0}'}" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+
+                    <Label Text="Линейные размеры" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamH}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BeamB}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="s, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding BeamS}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding BeamT}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Площадь и масса" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="A, см²:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamA}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="P, кг/м:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BeamP}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Моменты инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Ix, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamIx}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Iy, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BeamIy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Iz, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding BeamIz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Моменты сопротивления" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Wy, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamWy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Wz, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BeamWz}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Wx, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding BeamWx}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Статические моменты" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sy, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamSy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Sz, см³:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BeamSz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Радиусы инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="iy, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Beamiy}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="iz, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding Beamiz}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <Label Text="Координаты центра тяжести" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="xo, см:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BeamXo}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Пластина -->
+                    <Label Text="Пластина" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding PlateH}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding PlateB}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding PlateT}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Фланец -->
+                    <Label Text="Фланец" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding FlangeH}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding FlangeB}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding FlangeT}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Lb, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding FlangeLb}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Рёбра жёсткости -->
+                    <Label Text="Рёбра жёсткости" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="tr1, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding StiffTr1}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="tr2, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding StiffTr2}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="tbp, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding StiffTbp}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="tg, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding StiffTg}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="tf, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding StiffTf}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="twp, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding StiffTwp}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="Lh, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding StiffLh}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="Hh, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="3" Text="{Binding StiffHh}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Болты ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Используемые болты" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Кол-во:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BoltCount}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Рядов:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BoltRows}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Диаметр, мм:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding BoltDiameter}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Версия:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding BoltVersion}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="Коорд. Z:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding BoltCoordZ}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Координаты болтов по Y -->
+                    <Label Text="Координаты болтов по Y" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="e1:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BoltE1}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="p1:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BoltP1}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="p2:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding BoltP2}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="p3:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding BoltP3}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="p4:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding BoltP4}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="p5:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding BoltP5}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="p6:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding BoltP6}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="p7:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="3" Text="{Binding BoltP7}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="4" Grid.Column="0" Text="p8:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding BoltP8}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="4" Grid.Column="2" Text="p9:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="4" Grid.Column="3" Text="{Binding BoltP9}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="5" Grid.Column="0" Text="p10:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding BoltP10}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+
+                    <!-- Координаты болтов по X -->
+                    <Label Text="Координаты болтов по X" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="d1:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding BoltD1}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="d2:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding BoltD2}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Сварка ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Сварка — катеты швов kf" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="kf1:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding WeldKf1}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="kf2:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding WeldKf2}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="kf3:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding WeldKf3}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="kf4:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding WeldKf4}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="kf5:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding WeldKf5}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="kf6:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding WeldKf6}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="kf7:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding WeldKf7}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="kf8:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="3" Grid.Column="3" Text="{Binding WeldKf8}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="4" Grid.Column="0" Text="kf9:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding WeldKf9}" Style="{StaticResource FieldValue}" />
+                        <Label Grid.Row="4" Grid.Column="2" Text="kf10:" Style="{StaticResource FieldLabel}" />
+                        <Label Grid.Row="4" Grid.Column="3" Text="{Binding WeldKf10}" Style="{StaticResource FieldValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+                    <!-- ═══════════════════════════════════════════ -->
+                    <!-- ═══ Импорт Excel и расчёт ═══ -->
+                    <!-- ═══════════════════════════════════════════ -->
+                    <VerticalStackLayout Spacing="8"
+                                         BindingContext="{Binding ExcelImport, Source={x:Reference ThisPage}}"
+                                         x:DataType="vm:ExcelImportViewModel">
+
+                        <!-- Статус импорта -->
+                        <Label Text="{Binding Status}" FontSize="12" TextColor="{StaticResource Muted}" />
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+                        <!-- Кнопки импорта + настройки расчёта -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="Импорт данных из Excel" Style="{StaticResource SectionHeader}" />
+
+                                <Button Text="Импорт РСУ"
+                                        Command="{Binding ImportRsuCommand}"
+                                        BackgroundColor="{StaticResource Primary}"
+                                        TextColor="White" />
+
+                                <Button Text="Импорт РСН"
+                                        Command="{Binding ImportRsnCommand}"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        TextColor="White" />
+
+                                <!-- Коэффициент γ_f -->
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="γf:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Picker Grid.Column="1" ItemsSource="{Binding GammaFOptions}" SelectedItem="{Binding GammaF}" />
+                                </Grid>
+
+                                <!-- Фильтр элементов -->
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="Элементы:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Entry Grid.Column="1" Text="{Binding ElementFilterText}" Placeholder="73-80, 90, 100...110" />
+                                </Grid>
+
+                                <Button Text="Выполнить расчёт РС1"
+                                        Command="{Binding ExecuteCalculationCommand}"
+                                        BackgroundColor="#D83B01"
+                                        TextColor="White" />
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Таблица РСУ -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasRsuData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding RsuSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                                <CollectionView ItemsSource="{Binding RsuPreviewRows}" SelectionMode="None">
+                                    <CollectionView.Header>
+                                        <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                            <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                        </Grid>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                                <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                                <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                                <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                                <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                                <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                                <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                                <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                                <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                                <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                                <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Таблица РСН -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasRsnData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding RsnSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                                <CollectionView ItemsSource="{Binding RsnPreviewRows}" SelectionMode="None">
+                                    <CollectionView.Header>
+                                        <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                            <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                        </Grid>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                                <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                                <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                                <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                                <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                                <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                                <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                                <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                                <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                                <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                                <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Результаты расчёта -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasResults}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Результаты расчёта РС1" Style="{StaticResource SectionHeader}" />
+
+                                <!-- Выбор версии -->
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" IsVisible="{Binding HasResults}">
+                                    <Label Grid.Column="0" Text="Версия:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Picker Grid.Column="1" ItemsSource="{Binding CalculationVersions}" SelectedItem="{Binding SelectedCalculationVersion}" />
+                                    <Button Grid.Column="2" Text="Загрузить" Command="{Binding LoadSelectedVersionCommand}"
+                                            BackgroundColor="{StaticResource Primary}" TextColor="White" HeightRequest="36" FontSize="12" Padding="8,0" />
+                                </Grid>
+
+                                <CollectionView ItemsSource="{Binding Results}" SelectionMode="None">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ResultItem">
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Padding="4,2">
+                                                <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource FieldLabel}" />
+                                                <Label Grid.Column="1" Text="{Binding Value}" Style="{StaticResource FieldValue}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Таблица анализа -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasAnalysisData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Таблица анализа (MAX-строки)" Style="{StaticResource SectionHeader}" />
+                                <ScrollView Orientation="Horizontal">
+                                    <CollectionView ItemsSource="{Binding AnalysisRows}" SelectionMode="None">
+                                        <CollectionView.Header>
+                                            <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                                <Label Grid.Column="0" Text="Критерий" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="1" Text="Комбинация" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="2" Text="Элем." FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="4" Text="Nt" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="5" Text="Nc" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="6" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="7" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="8" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="9" Text="My" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="10" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="11" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="12" Text="u" FontAttributes="Bold" FontSize="11" />
+                                                <Label Grid.Column="13" Text="ψ" FontAttributes="Bold" FontSize="11" />
+                                            </Grid>
+                                        </CollectionView.Header>
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:AnalysisRowDisplay">
+                                                <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                                    <Label Grid.Column="0" Text="{Binding RowType}" FontSize="11" />
+                                                    <Label Grid.Column="1" Text="{Binding LoadCombination}" FontSize="11" />
+                                                    <Label Grid.Column="2" Text="{Binding ElementText}" FontSize="11" />
+                                                    <Label Grid.Column="3" Text="{Binding NText}" FontSize="11" />
+                                                    <Label Grid.Column="4" Text="{Binding NtText}" FontSize="11" />
+                                                    <Label Grid.Column="5" Text="{Binding NcText}" FontSize="11" />
+                                                    <Label Grid.Column="6" Text="{Binding QyText}" FontSize="11" />
+                                                    <Label Grid.Column="7" Text="{Binding QzText}" FontSize="11" />
+                                                    <Label Grid.Column="8" Text="{Binding MxText}" FontSize="11" />
+                                                    <Label Grid.Column="9" Text="{Binding MyText}" FontSize="11" />
+                                                    <Label Grid.Column="10" Text="{Binding MzText}" FontSize="11" />
+                                                    <Label Grid.Column="11" Text="{Binding MwText}" FontSize="11" />
+                                                    <Label Grid.Column="12" Text="{Binding UText}" FontSize="11" />
+                                                    <Label Grid.Column="13" Text="{Binding PsiText}" FontSize="11" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </ScrollView>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                    </VerticalStackLayout>
+
+            <!-- ═══ График несущей способности ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="График" Style="{StaticResource SectionHeader}" />
+                    <Border StrokeThickness="1" Stroke="{StaticResource Muted}" BackgroundColor="White"
+                            Padding="8" HorizontalOptions="Fill">
+                        <GraphicsView x:Name="capacityChartView"
+                                       Drawable="{Binding CapacityChart}"
+                                       HeightRequest="{Binding CapacityChartHeight}"
+                                       HorizontalOptions="Fill" />
+                    </Border>
+                </VerticalStackLayout>
+            </Frame>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </ContentPage>

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:steel_structures_nodes.Maui.ViewModels"
+             x:Class="steel_structures_nodes.Maui.ExcelImportPage"
+             x:DataType="vm:ExcelImportViewModel"
+             Title="Импорт Excel"
+             BackgroundColor="{StaticResource Surface}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="8">
+
+            <!-- Статус -->
+            <Label Text="{Binding Status}" FontSize="12" TextColor="{StaticResource Muted}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+            <!-- Кнопки импорта + настройки расчёта -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Импорт данных из Excel" Style="{StaticResource SectionHeader}" />
+
+                    <Button Text="Импорт РСУ"
+                            Command="{Binding ImportRsuCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White" />
+
+                    <Button Text="Импорт РСН"
+                            Command="{Binding ImportRsnCommand}"
+                            BackgroundColor="{StaticResource Accent}"
+                            TextColor="White" />
+
+                    <!-- Коэффициент γ_f -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Text="γf:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                        <Picker Grid.Column="1" ItemsSource="{Binding GammaFOptions}" SelectedItem="{Binding GammaF}" />
+                    </Grid>
+
+                    <!-- Фильтр элементов -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Text="Элементы:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Column="1" Text="{Binding ElementFilterText}" Placeholder="73-80, 90, 100...110" />
+                    </Grid>
+
+                    <Button Text="Выполнить расчёт РС1"
+                            Command="{Binding ExecuteCalculationCommand}"
+                            BackgroundColor="#D83B01"
+                            TextColor="White" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Таблица РСУ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasRsuData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding RsuSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                    <CollectionView ItemsSource="{Binding RsuPreviewRows}" SelectionMode="None">
+                        <CollectionView.Header>
+                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                            </Grid>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                    <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                    <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                    <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                    <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                    <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                    <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                    <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                    <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                    <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Таблица РСН -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasRsnData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding RsnSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                    <CollectionView ItemsSource="{Binding RsnPreviewRows}" SelectionMode="None">
+                        <CollectionView.Header>
+                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                            </Grid>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                    <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                    <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                    <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                    <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                    <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                    <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                    <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                    <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                    <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Результаты расчёта -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasResults}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Результаты расчёта РС1" Style="{StaticResource SectionHeader}" />
+
+                    <!-- Выбор версии -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" IsVisible="{Binding HasResults}">
+                        <Label Grid.Column="0" Text="Версия:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                        <Picker Grid.Column="1" ItemsSource="{Binding CalculationVersions}" SelectedItem="{Binding SelectedCalculationVersion}" />
+                        <Button Grid.Column="2" Text="Загрузить" Command="{Binding LoadSelectedVersionCommand}"
+                                BackgroundColor="{StaticResource Primary}" TextColor="White" HeightRequest="36" FontSize="12" Padding="8,0" />
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding Results}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ResultItem">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Padding="4,2">
+                                    <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource FieldLabel}" />
+                                    <Label Grid.Column="1" Text="{Binding Value}" Style="{StaticResource FieldValue}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Таблица анализа -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasAnalysisData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Таблица анализа (MAX-строки)" Style="{StaticResource SectionHeader}" />
+                    <ScrollView Orientation="Horizontal">
+                        <CollectionView ItemsSource="{Binding AnalysisRows}" SelectionMode="None">
+                            <CollectionView.Header>
+                                <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="Критерий" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="1" Text="Комбинация" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="2" Text="Элем." FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="4" Text="Nt" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="5" Text="Nc" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="6" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="7" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="8" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="9" Text="My" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="10" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="11" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="12" Text="u" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="13" Text="ψ" FontAttributes="Bold" FontSize="11" />
+                                </Grid>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AnalysisRowDisplay">
+                                    <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                        <Label Grid.Column="0" Text="{Binding RowType}" FontSize="11" />
+                                        <Label Grid.Column="1" Text="{Binding LoadCombination}" FontSize="11" />
+                                        <Label Grid.Column="2" Text="{Binding ElementText}" FontSize="11" />
+                                        <Label Grid.Column="3" Text="{Binding NText}" FontSize="11" />
+                                        <Label Grid.Column="4" Text="{Binding NtText}" FontSize="11" />
+                                        <Label Grid.Column="5" Text="{Binding NcText}" FontSize="11" />
+                                        <Label Grid.Column="6" Text="{Binding QyText}" FontSize="11" />
+                                        <Label Grid.Column="7" Text="{Binding QzText}" FontSize="11" />
+                                        <Label Grid.Column="8" Text="{Binding MxText}" FontSize="11" />
+                                        <Label Grid.Column="9" Text="{Binding MyText}" FontSize="11" />
+                                        <Label Grid.Column="10" Text="{Binding MzText}" FontSize="11" />
+                                        <Label Grid.Column="11" Text="{Binding MwText}" FontSize="11" />
+                                        <Label Grid.Column="12" Text="{Binding UText}" FontSize="11" />
+                                        <Label Grid.Column="13" Text="{Binding PsiText}" FontSize="11" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Нагрузки для IDEA StatiCA -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasIdeaData}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Нагрузки для IDEA StatiCA" Style="{StaticResource SectionHeader}" />
+                    <ScrollView Orientation="Horizontal">
+                        <CollectionView ItemsSource="{Binding IdeaRows}" SelectionMode="None">
+                            <CollectionView.Header>
+                                <Grid ColumnDefinitions="90,70,70,70,70,70,70" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="Критерий"   FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="1" Text="N, кН"      FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="2" Text="Vy, кН"     FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="3" Text="Vz, кН"     FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="4" Text="Mx, кН·м"   FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="5" Text="My, кН·м"   FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="6" Text="Mz, кН·м"   FontAttributes="Bold" FontSize="11" />
+                                </Grid>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:IdeaRowDisplay">
+                                    <Grid ColumnDefinitions="90,70,70,70,70,70,70" ColumnSpacing="4" Padding="4">
+                                        <Label Grid.Column="0" Text="{Binding RowType}" FontSize="11" />
+                                        <Label Grid.Column="1" Text="{Binding NText}"   FontSize="11" />
+                                        <Label Grid.Column="2" Text="{Binding VyText}"  FontSize="11" />
+                                        <Label Grid.Column="3" Text="{Binding VzText}"  FontSize="11" />
+                                        <Label Grid.Column="4" Text="{Binding MxText}"  FontSize="11" />
+                                        <Label Grid.Column="5" Text="{Binding MyText}"  FontSize="11" />
+                                        <Label Grid.Column="6" Text="{Binding MzText}"  FontSize="11" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:steel_structures_nodes.Maui.ViewModels"
+             xmlns:ctrl="clr-namespace:steel_structures_nodes.Maui.Controls"
+             x:Class="steel_structures_nodes.Maui.MainPage"
+             x:Name="ThisPage"
+             x:DataType="vm:MainViewModel"
+             Title="Анализ узла"
+             BackgroundColor="{StaticResource Surface}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="8">
+
+            <!-- Статус -->
+            <Label Text="{Binding Status}" FontSize="12" TextColor="{StaticResource Muted}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+            <Button Text="🔌 Тест подключения к БД"
+                    Command="{Binding TestConnectionCommand}"
+                    BackgroundColor="#555" TextColor="White"
+                    FontSize="12" HeightRequest="36" Padding="8,0" />
+
+            <!-- ═══ Выбор узла ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Выбор узлового соединения" Style="{StaticResource SectionHeader}" />
+
+                    <Label Text="Имя группы" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ConnectionNames}"
+                            SelectedItem="{Binding SelectedName}" />
+
+                    <Label Text="Профиль колонны" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ProfileColumns}"
+                            SelectedItem="{Binding SelectedProfileColumn}" />
+
+                    <Label Text="Профиль балки" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ProfileBeams}"
+                            SelectedItem="{Binding SelectedProfileBeam}" />
+
+                    <Label Text="Код соединения" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding ConnectionCodes}"
+                            SelectedItem="{Binding SelectedConnectionCode}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Превью узла ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Preview" Style="{StaticResource SectionHeader}" />
+                    <!-- Слой 1 — стрелки (колонки Auto) | Слой 2 — картинка (колонка *) -->
+                    <!-- Стрелки и картинка не перекрываются: они в разных колонках Grid -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+
+                        <!-- Слой 1: кнопка «назад» -->
+                        <Button Grid.Column="0" Grid.Row="0"
+                                Text="◀" FontSize="13"
+                                VerticalOptions="Center"
+                                BackgroundColor="{StaticResource CardBackground}"
+                                TextColor="{StaticResource Primary}"
+                                WidthRequest="28" HeightRequest="56"
+                                BorderWidth="0" CornerRadius="8"
+                                IsEnabled="{Binding HasMultipleImages}"
+                                Command="{Binding PrevImageCommand}" />
+
+                        <!-- Слой 2: картинка (со свайп-жестами для мобильного) -->
+                        <Border Grid.Column="1" Grid.Row="0"
+                                StrokeThickness="1" Stroke="{StaticResource Muted}"
+                                BackgroundColor="White"
+                                HeightRequest="265" HorizontalOptions="Fill">
+                            <Grid>
+                                <!-- Свайп влево → следующее; вправо → предыдущее -->
+                                <Grid.GestureRecognizers>
+                                    <SwipeGestureRecognizer Direction="Left"
+                                                            Command="{Binding NextImageCommand}"
+                                                            Threshold="50" />
+                                    <SwipeGestureRecognizer Direction="Right"
+                                                            Command="{Binding PrevImageCommand}"
+                                                            Threshold="50" />
+                                </Grid.GestureRecognizers>
+                                <Image Source="{Binding SelectedNodeImage}" Aspect="AspectFit"
+                                       HorizontalOptions="Fill" VerticalOptions="Fill" />
+                                <Label Text="no image" FontAttributes="Italic" TextColor="{StaticResource Muted}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       IsVisible="{Binding SelectedNodeImage, Converter={StaticResource IsNullConverter}}" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Слой 1: кнопка «вперёд» -->
+                        <Button Grid.Column="2" Grid.Row="0"
+                                Text="▶" FontSize="13"
+                                VerticalOptions="Center"
+                                BackgroundColor="{StaticResource CardBackground}"
+                                TextColor="{StaticResource Primary}"
+                                WidthRequest="28" HeightRequest="56"
+                                BorderWidth="0" CornerRadius="8"
+                                IsEnabled="{Binding HasMultipleImages}"
+                                Command="{Binding NextImageCommand}" />
+
+                        <!-- Индикатор «N / Total» под картинкой -->
+                        <Label Grid.Column="1" Grid.Row="1"
+                               Text="{Binding ImageIndexText}" FontSize="12" FontAttributes="Bold"
+                               TextColor="{StaticResource Muted}"
+                               HorizontalOptions="Center" Margin="0,4,0,0"
+                               IsVisible="{Binding HasMultipleImages}" />
+                    </Grid>
+                    <Label Text="{Binding SelectedNodeDescription}" FontSize="13" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+
+                    <!-- Примечания из поля Explanations базы данных -->
+                    <Frame BackgroundColor="{StaticResource Surface}" Padding="10" CornerRadius="6"
+                           HasShadow="False" BorderColor="{StaticResource Muted}"
+                           IsVisible="{Binding HasExplanation}">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Примечания"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding NodeExplanation}"
+                                   FontSize="13"
+                                   TextColor="{StaticResource Muted}"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Несущая способность ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Несущая способность" Style="{StaticResource SectionHeader}" />
+                    <Label Text="{Binding TableBrand, StringFormat='Марка: {0}'}" FontSize="13" TextColor="{StaticResource Muted}" />
+
+                    <!-- Продольные силы -->
+                    <Label Text="Продольные силы" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Nt, кН:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding NtValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Nc, кН:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding NcValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="N, кН:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding NValue}" />
+                    </Grid>
+
+                    <!-- Поперечные силы -->
+                    <Label Text="Поперечные силы" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Qy, кН:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding QyValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Qz, кН:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding QzValue}" />
+                    </Grid>
+
+                    <!-- Моменты -->
+                    <Label Text="Моменты" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Mx, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding MxValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="My, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding MyValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Mz, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding MzValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Mw, кН·м²:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding MwValue}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Mneg, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding MnegValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Жёсткость и коэффициенты ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Жёсткость" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sj, кН·м/рад:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding SjValue}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Sjo, кН·м/рад:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding SjoValue}" />
+                    </Grid>
+
+                    <Label Text="Коэффициенты взаимодействия" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="α:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding AlphaValue}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="β:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BetaValue}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="γ:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding GammaValue}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="δ:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding DeltaValue}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="ε:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding EpsilonValue}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="λ:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="3" Text="{Binding LambdaValue}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Геометрия ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Геометрия" Style="{StaticResource SectionHeader}" />
+
+                    <!-- Колонна -->
+                    <Label Text="{Binding ColumnProfile, StringFormat='Колонна: {0}'}" FontSize="13" FontAttributes="Bold" Margin="0,4,0,0" />
+
+                    <Label Text="Линейные размеры" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnH}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnB}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="s, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding ColumnS}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding ColumnT}" />
+                    </Grid>
+
+                    <Label Text="Площадь и масса" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="A, см²:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnA}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="P, кг/м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnP}" />
+                    </Grid>
+
+                    <Label Text="Моменты инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Ix, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnIx}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Iy, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnIy}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Iz, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding ColumnIz}" />
+                    </Grid>
+
+                    <Label Text="Моменты сопротивления" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Wy, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnWy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Wz, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnWz}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Wx, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding ColumnWx}" />
+                    </Grid>
+
+                    <Label Text="Статические моменты" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sy, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnSy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Sz, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnSz}" />
+                    </Grid>
+
+                    <Label Text="Радиусы инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="iy, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding Columniy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="iz, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding Columniz}" />
+                    </Grid>
+
+                    <Label Text="Координаты центра тяжести" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="xo, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding ColumnXo}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="yo, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding ColumnYo}" />
+                    </Grid>
+
+                    <!-- Балка -->
+                    <Label Text="{Binding BeamProfile, StringFormat='Балка: {0}'}" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+
+                    <Label Text="Линейные размеры" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamH}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BeamB}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="s, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding BeamS}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding BeamT}" />
+                    </Grid>
+
+                    <Label Text="Площадь и масса" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="A, см²:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamA}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="P, кг/м:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BeamP}" />
+                    </Grid>
+
+                    <Label Text="Моменты инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Ix, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamIx}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Iy, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BeamIy}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Iz, см⁴:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding BeamIz}" />
+                    </Grid>
+
+                    <Label Text="Моменты сопротивления" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Wy, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamWy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Wz, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BeamWz}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Wx, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding BeamWx}" />
+                    </Grid>
+
+                    <Label Text="Статические моменты" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Sy, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamSy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Sz, см³:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BeamSz}" />
+                    </Grid>
+
+                    <Label Text="Радиусы инерции" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="iy, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding Beamiy}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="iz, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding Beamiz}" />
+                    </Grid>
+
+                    <Label Text="Координаты центра тяжести" FontSize="12" TextColor="{StaticResource Muted}" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="xo, см:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BeamXo}" />
+                    </Grid>
+
+                    <!-- Пластина -->
+                    <Label Text="Пластина" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding PlateH}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding PlateB}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding PlateT}" />
+                    </Grid>
+
+                    <!-- Фланец -->
+                    <Label Text="Фланец" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="H, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding FlangeH}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="B, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding FlangeB}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="t, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding FlangeT}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Lb, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding FlangeLb}" />
+                    </Grid>
+
+                    <!-- Рёбра жёсткости -->
+                    <Label Text="Рёбра жёсткости" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="tr1, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding StiffTr1}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="tr2, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding StiffTr2}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="tbp, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding StiffTbp}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="tg, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding StiffTg}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="tf, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding StiffTf}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="twp, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="3" Text="{Binding StiffTwp}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="Lh, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="1" Text="{Binding StiffLh}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="Hh, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="3" Text="{Binding StiffHh}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Болты ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Используемые болты" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Кол-во:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BoltCount}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Рядов:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BoltRows}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Диаметр, мм:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding BoltDiameter}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="Версия:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding BoltVersion}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="Коорд. Z:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding BoltCoordZ}" />
+                    </Grid>
+
+                    <!-- Координаты болтов по Y -->
+                    <Label Text="Координаты болтов по Y" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="e1:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BoltE1}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="p1:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BoltP1}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="p2:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding BoltP2}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="p3:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding BoltP3}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="p4:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding BoltP4}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="p5:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="3" Text="{Binding BoltP5}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="p6:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="1" Text="{Binding BoltP6}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="p7:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="3" Text="{Binding BoltP7}" />
+                        <Label Grid.Row="4" Grid.Column="0" Text="p8:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="4" Grid.Column="1" Text="{Binding BoltP8}" />
+                        <Label Grid.Row="4" Grid.Column="2" Text="p9:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="4" Grid.Column="3" Text="{Binding BoltP9}" />
+                        <Label Grid.Row="5" Grid.Column="0" Text="p10:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="5" Grid.Column="1" Text="{Binding BoltP10}" />
+                    </Grid>
+
+                    <!-- Координаты болтов по X -->
+                    <Label Text="Координаты болтов по X" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="d1:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding BoltD1}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="d2:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding BoltD2}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ═══ Сварка ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Сварка — катеты швов kf" Style="{StaticResource SectionHeader}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="kf1:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="1" Text="{Binding WeldKf1}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="kf2:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="0" Grid.Column="3" Text="{Binding WeldKf2}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="kf3:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="1" Text="{Binding WeldKf3}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="kf4:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="1" Grid.Column="3" Text="{Binding WeldKf4}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="kf5:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="1" Text="{Binding WeldKf5}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="kf6:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="2" Grid.Column="3" Text="{Binding WeldKf6}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="kf7:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="1" Text="{Binding WeldKf7}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="kf8:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="3" Grid.Column="3" Text="{Binding WeldKf8}" />
+                        <Label Grid.Row="4" Grid.Column="0" Text="kf9:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="4" Grid.Column="1" Text="{Binding WeldKf9}" />
+                        <Label Grid.Row="4" Grid.Column="2" Text="kf10:" Style="{StaticResource FieldLabel}" />
+                        <ctrl:CopyableValue Grid.Row="4" Grid.Column="3" Text="{Binding WeldKf10}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+                    <!-- ═══════════════════════════════════════════ -->
+                    <!-- ═══ Импорт Excel и расчёт ═══ -->
+                    <!-- ═══════════════════════════════════════════ -->
+                    <VerticalStackLayout Spacing="8"
+                                         BindingContext="{Binding ExcelImport}"
+                                         x:DataType="vm:ExcelImportViewModel">
+
+                        <!-- Статус импорта -->
+                        <Label Text="{Binding Status}" FontSize="12" TextColor="{StaticResource Muted}" />
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+                        <!-- Кнопки импорта + настройки расчёта -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="Импорт данных из Excel" Style="{StaticResource SectionHeader}" />
+
+                                <Button Text="Импорт РСУ"
+                                        Command="{Binding ImportRsuCommand}"
+                                        BackgroundColor="{StaticResource Primary}"
+                                        TextColor="White" />
+
+                                <Button Text="Импорт РСН"
+                                        Command="{Binding ImportRsnCommand}"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        TextColor="White" />
+
+                                <!-- Коэффициент γ_f -->
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="γf:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Picker Grid.Column="1" ItemsSource="{Binding GammaFOptions}" SelectedItem="{Binding GammaF}" />
+                                </Grid>
+
+                                <!-- Фильтр элементов -->
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="Элементы:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Entry Grid.Column="1" Text="{Binding ElementFilterText}" Placeholder="73-80, 90, 100...110" />
+                                </Grid>
+
+                                <Button Text="Выполнить расчёт РС1"
+                                        Command="{Binding ExecuteCalculationCommand}"
+                                        BackgroundColor="#D83B01"
+                                        TextColor="White" />
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Таблица РСУ -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasRsuData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding RsuSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                                <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                </Grid>
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding RsuPreviewRows}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                                <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                                <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                                <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                                <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                                <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                                <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                                <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                                <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                                <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                                <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Таблица РСН -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasRsnData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding RsnSummaryTitle}" Style="{StaticResource SectionHeader}" />
+                                <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                    <Label Grid.Column="0" Text="DCL" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="1" Text="Elem" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="2" Text="Sect" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="4" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="5" Text="My" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="6" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="7" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="8" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                    <Label Grid.Column="9" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                </Grid>
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding RsnPreviewRows}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ForceRowDisplay">
+                                            <Grid ColumnDefinitions="60,60,60,80,80,80,80,80,80,80" ColumnSpacing="4" Padding="4">
+                                                <Label Grid.Column="0" Text="{Binding DclNo}" FontSize="11" />
+                                                <Label Grid.Column="1" Text="{Binding Elem}" FontSize="11" />
+                                                <Label Grid.Column="2" Text="{Binding Sect}" FontSize="11" />
+                                                <Label Grid.Column="3" Text="{Binding N}" FontSize="11" />
+                                                <Label Grid.Column="4" Text="{Binding Mx}" FontSize="11" />
+                                                <Label Grid.Column="5" Text="{Binding My}" FontSize="11" />
+                                                <Label Grid.Column="6" Text="{Binding Qz}" FontSize="11" />
+                                                <Label Grid.Column="7" Text="{Binding Mz}" FontSize="11" />
+                                                <Label Grid.Column="8" Text="{Binding Qy}" FontSize="11" />
+                                                <Label Grid.Column="9" Text="{Binding Mw}" FontSize="11" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Результаты расчёта -->
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasResults}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Результаты расчёта РС1" Style="{StaticResource SectionHeader}" />
+
+                                <!-- Выбор версии -->
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" IsVisible="{Binding HasResults}">
+                                    <Label Grid.Column="0" Text="Версия:" VerticalOptions="Center" Style="{StaticResource FieldLabel}" />
+                                    <Picker Grid.Column="1" ItemsSource="{Binding CalculationVersions}" SelectedItem="{Binding SelectedCalculationVersion}" />
+                                    <Button Grid.Column="2" Text="Загрузить" Command="{Binding LoadSelectedVersionCommand}"
+                                            BackgroundColor="{StaticResource Primary}" TextColor="White" HeightRequest="36" FontSize="12" Padding="8,0" />
+                                </Grid>
+
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Results}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ResultItem">
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Padding="4,2">
+                                                <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource FieldLabel}" />
+                                                <ctrl:CopyableValue Grid.Column="1" Text="{Binding Value}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- ═══ Примечания (Explanations из базы данных) ═══ -->
+
+                        <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                               IsVisible="{Binding HasAnalysisData}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Таблица анализа (MAX-строки)" Style="{StaticResource SectionHeader}" />
+                                <ScrollView Orientation="Horizontal">
+                                    <VerticalStackLayout>
+                                        <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                            <Label Grid.Column="0" Text="Критерий" FontAttributes="Bold" FontSize="11" />
+                                            <Label Grid.Column="1" Text="Комбинация" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="2" Text="Элем." FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="3" Text="N" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="4" Text="Nt" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="5" Text="Nc" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="6" Text="Qy" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="7" Text="Qz" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="8" Text="Mx" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="9" Text="My" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="10" Text="Mz" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="11" Text="Mw" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="12" Text="u" FontAttributes="Bold" FontSize="11" />
+                                                            <Label Grid.Column="13" Text="ψ" FontAttributes="Bold" FontSize="11" />
+                                                        </Grid>
+                                                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding AnalysisRows}">
+                                                            <BindableLayout.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:AnalysisRowDisplay">
+                                                                    <Grid ColumnDefinitions="90,90,60,70,70,70,70,70,70,70,70,70,60,60" ColumnSpacing="4" Padding="4">
+                                                                        <Label Grid.Column="0" Text="{Binding RowType}" FontSize="11" />
+                                                                        <Label Grid.Column="1" Text="{Binding LoadCombination}" FontSize="11" />
+                                                                        <Label Grid.Column="2" Text="{Binding ElementText}" FontSize="11" />
+                                                                        <Label Grid.Column="3" Text="{Binding NText}" FontSize="11" />
+                                                                        <Label Grid.Column="4" Text="{Binding NtText}" FontSize="11" />
+                                                                        <Label Grid.Column="5" Text="{Binding NcText}" FontSize="11" />
+                                                                        <Label Grid.Column="6" Text="{Binding QyText}" FontSize="11" />
+                                                                        <Label Grid.Column="7" Text="{Binding QzText}" FontSize="11" />
+                                                                        <Label Grid.Column="8" Text="{Binding MxText}" FontSize="11" />
+                                                                        <Label Grid.Column="9" Text="{Binding MyText}" FontSize="11" />
+                                                                        <Label Grid.Column="10" Text="{Binding MzText}" FontSize="11" />
+                                                                        <Label Grid.Column="11" Text="{Binding MwText}" FontSize="11" />
+                                                                        <Label Grid.Column="12" Text="{Binding UText}" FontSize="11" />
+                                                                        <Label Grid.Column="13" Text="{Binding PsiText}" FontSize="11" />
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </BindableLayout.ItemTemplate>
+                                                        </VerticalStackLayout>
+                                                    </VerticalStackLayout>
+                                                </ScrollView>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                    </VerticalStackLayout>
+
+            <!-- ═══ Сравнительная диаграмма: табличные vs расчётные ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Сравнение: табличные vs расчётные" Style="{StaticResource SectionHeader}" />
+                    <Border StrokeThickness="1" Stroke="{StaticResource Muted}" BackgroundColor="White"
+                            Padding="8" HorizontalOptions="Fill">
+                        <GraphicsView x:Name="capacityChartView"
+                                       Drawable="{Binding CapacityChart}"
+                                       HeightRequest="{Binding CapacityChartHeight}"
+                                       HorizontalOptions="Fill" />
+                    </Border>
+                </VerticalStackLayout>
+            </Frame>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </ContentPage>

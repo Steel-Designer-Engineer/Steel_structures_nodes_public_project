@@ -1,0 +1,1666 @@
+﻿[
+  {
+    "CONNECTION_GUID": "30b2cefb-69a4-4544-9a62-c0604cdafd9a",
+    "Profile": "10Б1",
+    "H": 100,
+    "B": 55,
+    "s": 4.1,
+    "t": 5.7
+  },
+  {
+    "CONNECTION_GUID": "2ab138c2-e20d-41fb-9c66-04422dae3fbb",
+    "Profile": "12Б1",
+    "H": 117.6,
+    "B": 64,
+    "s": 3.8,
+    "t": 5.1
+  },
+  {
+    "CONNECTION_GUID": "257191fa-673e-41b9-8e84-726889f526b6",
+    "Profile": "12Б2",
+    "H": 120,
+    "B": 64,
+    "s": 4.4,
+    "t": 6.3
+  },
+  {
+    "CONNECTION_GUID": "64b44d79-5478-4dab-8c4b-4cdf494176b9",
+    "Profile": "14Б1",
+    "H": 137.4,
+    "B": 73,
+    "s": 3.8,
+    "t": 5.6
+  },
+  {
+    "CONNECTION_GUID": "e810ce15-e009-4842-bab3-9ec25c6a8e2b",
+    "Profile": "14Б2",
+    "H": 140,
+    "B": 73,
+    "s": 4.7,
+    "t": 6.9
+  },
+  {
+    "CONNECTION_GUID": "e35fb3cc-6730-4203-9a53-07ebcb86c8de",
+    "Profile": "16Б1",
+    "H": 157,
+    "B": 82,
+    "s": 4,
+    "t": 5.9
+  },
+  {
+    "CONNECTION_GUID": "eac9e3ee-2ca0-4760-8c20-454d918cda39",
+    "Profile": "16Б2",
+    "H": 160,
+    "B": 82,
+    "s": 5,
+    "t": 7.4
+  },
+  {
+    "CONNECTION_GUID": "afa1c97b-9b4e-4768-aa82-10058e1ed4c0",
+    "Profile": "18Б1",
+    "H": 177,
+    "B": 91,
+    "s": 4.3,
+    "t": 6.5
+  },
+  {
+    "CONNECTION_GUID": "96cf99ea-60a2-4c2b-9374-6c476b3e50bb",
+    "Profile": "18Б2",
+    "H": 180,
+    "B": 91,
+    "s": 5.3,
+    "t": 8
+  },
+  {
+    "CONNECTION_GUID": "81b02a73-c149-4da5-8eee-aa5c0db8778f",
+    "Profile": "20Б1",
+    "H": 200,
+    "B": 100,
+    "s": 5.5,
+    "t": 8
+  },
+  {
+    "CONNECTION_GUID": "80f0c87d-101f-472a-a474-59d8fd9ddc7c",
+    "Profile": "20Б2",
+    "H": 203,
+    "B": 101,
+    "s": 6.5,
+    "t": 9.5
+  },
+  {
+    "CONNECTION_GUID": "b8c82871-37e5-419c-aa7c-bdbedddfac72",
+    "Profile": "20Б3",
+    "H": 208,
+    "B": 102,
+    "s": 8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "136be258-cc7e-4f2b-a951-4a61104be617",
+    "Profile": "25Б1",
+    "H": 248,
+    "B": 124,
+    "s": 5,
+    "t": 8
+  },
+  {
+    "CONNECTION_GUID": "0c3a4d52-5d3d-4b6a-9514-f3536d176bef",
+    "Profile": "25Б2",
+    "H": 250,
+    "B": 125,
+    "s": 6,
+    "t": 9
+  },
+  {
+    "CONNECTION_GUID": "f95bd9b1-8ff1-4c76-ab33-6b8fd85ea2a1",
+    "Profile": "25Б3",
+    "H": 255,
+    "B": 126,
+    "s": 7.5,
+    "t": 11.5
+  },
+  {
+    "CONNECTION_GUID": "a6ad3e16-2317-4994-819b-6120fac8fafe",
+    "Profile": "25Б4",
+    "H": 260,
+    "B": 127,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "d424a1e9-5271-472c-aca4-dec0636b7cf9",
+    "Profile": "30Б1",
+    "H": 298,
+    "B": 149,
+    "s": 5.5,
+    "t": 8
+  },
+  {
+    "CONNECTION_GUID": "bd7784ad-5c2d-4398-9c57-bc8b9e02097d",
+    "Profile": "30Б2",
+    "H": 300,
+    "B": 150,
+    "s": 6.5,
+    "t": 9
+  },
+  {
+    "CONNECTION_GUID": "d46e0109-3c72-485f-8a7c-7834fbd8aed3",
+    "Profile": "30Б3",
+    "H": 305,
+    "B": 151,
+    "s": 8,
+    "t": 11.5
+  },
+  {
+    "CONNECTION_GUID": "0d85a76c-a020-41d2-bc27-bbada6e4be20",
+    "Profile": "30Б4",
+    "H": 310,
+    "B": 152,
+    "s": 9.5,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "c6ee39a5-dbf8-4332-992a-bf2abd533f6b",
+    "Profile": "35Б1",
+    "H": 346,
+    "B": 174,
+    "s": 6,
+    "t": 9
+  },
+  {
+    "CONNECTION_GUID": "a2ace55f-e9a5-407f-b64d-261a7675e0a3",
+    "Profile": "35Б2",
+    "H": 350,
+    "B": 175,
+    "s": 7,
+    "t": 11
+  },
+  {
+    "CONNECTION_GUID": "0f768b0b-c999-404e-b792-d7895b28b461",
+    "Profile": "35Б3",
+    "H": 355,
+    "B": 176,
+    "s": 8.5,
+    "t": 13.5
+  },
+  {
+    "CONNECTION_GUID": "90453573-bbc1-45e5-906f-cfa4154970f5",
+    "Profile": "35Б4",
+    "H": 361,
+    "B": 177,
+    "s": 10,
+    "t": 16.5
+  },
+  {
+    "CONNECTION_GUID": "40f65f19-ef1b-436e-945f-96eaef4b6d98",
+    "Profile": "40Б1",
+    "H": 396,
+    "B": 199,
+    "s": 7,
+    "t": 11
+  },
+  {
+    "CONNECTION_GUID": "aeb6cbd2-bed7-428a-912b-6c18c95f0741",
+    "Profile": "40Б2",
+    "H": 400,
+    "B": 200,
+    "s": 8,
+    "t": 13
+  },
+  {
+    "CONNECTION_GUID": "abed60ec-93f6-4129-9f69-0d5e9d3e727d",
+    "Profile": "40Б3",
+    "H": 406,
+    "B": 201,
+    "s": 9.5,
+    "t": 16
+  },
+  {
+    "CONNECTION_GUID": "e6eb9d29-c7c2-40c9-84ef-3219d78b8de2",
+    "Profile": "40Б4",
+    "H": 412,
+    "B": 202,
+    "s": 11,
+    "t": 19
+  },
+  {
+    "CONNECTION_GUID": "3727d390-6d26-4546-8a14-ceb61afd5fa7",
+    "Profile": "45Б1",
+    "H": 446,
+    "B": 199,
+    "s": 8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "994a5831-5655-4185-bf3f-764e341c6a88",
+    "Profile": "45Б2",
+    "H": 450,
+    "B": 200,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "ef165e7e-01f8-451e-bf89-98a6a110ab2b",
+    "Profile": "45Б3",
+    "H": 456,
+    "B": 201,
+    "s": 10.5,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "23113565-1b1d-491c-b806-3ec977b42e25",
+    "Profile": "45Б4",
+    "H": 462,
+    "B": 202,
+    "s": 12,
+    "t": 20
+  },
+  {
+    "CONNECTION_GUID": "1f8768ab-cfc3-432f-894e-d458f419d996",
+    "Profile": "50Б1",
+    "H": 492,
+    "B": 199,
+    "s": 8.8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "ea05e29f-489e-478d-bba6-74800c2e6840",
+    "Profile": "50Б2",
+    "H": 496,
+    "B": 199,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "f084f35d-e842-4c6d-8363-e791552e27f1",
+    "Profile": "50Б3",
+    "H": 500,
+    "B": 200,
+    "s": 10,
+    "t": 16
+  },
+  {
+    "CONNECTION_GUID": "889f0324-df76-479c-96ee-f6209c4562cb",
+    "Profile": "50Б4",
+    "H": 508,
+    "B": 201,
+    "s": 12,
+    "t": 20
+  },
+  {
+    "CONNECTION_GUID": "31787b8c-6bc7-4610-9f46-8dadc556217d",
+    "Profile": "50Б5",
+    "H": 516,
+    "B": 202,
+    "s": 15,
+    "t": 24
+  },
+  {
+    "CONNECTION_GUID": "423eb296-22de-4f0d-87df-f767c4d5c638",
+    "Profile": "55Б1",
+    "H": 543,
+    "B": 220,
+    "s": 9.5,
+    "t": 13.5
+  },
+  {
+    "CONNECTION_GUID": "dd99a4a5-7e68-40a5-8d05-cb554b5040f7",
+    "Profile": "55Б2",
+    "H": 547,
+    "B": 220,
+    "s": 10,
+    "t": 15.5
+  },
+  {
+    "CONNECTION_GUID": "fc6f1648-7087-41b2-b79a-7f2e9348e26b",
+    "Profile": "55Б3",
+    "H": 553,
+    "B": 221,
+    "s": 12,
+    "t": 18.5
+  },
+  {
+    "CONNECTION_GUID": "05b47edc-21c6-4c61-9d34-f8a2251251d1",
+    "Profile": "55Б4",
+    "H": 560,
+    "B": 222,
+    "s": 14,
+    "t": 22
+  },
+  {
+    "CONNECTION_GUID": "4201a623-16b2-4ae2-be87-6eb4c17106b9",
+    "Profile": "60Б1",
+    "H": 596,
+    "B": 199,
+    "s": 10,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "a9b86036-f721-4c2e-897b-cc36da0d01d9",
+    "Profile": "60Б2",
+    "H": 600,
+    "B": 200,
+    "s": 11,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "68153f09-2d9a-469c-b3b5-f743615cf2fc",
+    "Profile": "60Б3",
+    "H": 604,
+    "B": 201,
+    "s": 12.5,
+    "t": 19
+  },
+  {
+    "CONNECTION_GUID": "abf4f102-738b-46dd-9a75-72627e79c9f0",
+    "Profile": "60Б4",
+    "H": 612,
+    "B": 202,
+    "s": 15,
+    "t": 23
+  },
+  {
+    "CONNECTION_GUID": "3e9020ee-2b81-4f88-abef-ee6cb3dbda01",
+    "Profile": "70Б1",
+    "H": 691,
+    "B": 260,
+    "s": 12,
+    "t": 15.5
+  },
+  {
+    "CONNECTION_GUID": "38e0bff7-6315-4238-a1fe-8bb7d69e4ee8",
+    "Profile": "70Б2",
+    "H": 697,
+    "B": 260,
+    "s": 12.5,
+    "t": 18.5
+  },
+  {
+    "CONNECTION_GUID": "bd8b4bb1-00bb-4473-9703-b4fa512b6f82",
+    "Profile": "70Б3",
+    "H": 702,
+    "B": 261,
+    "s": 14.5,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "0fb515b3-8edd-4cf4-83c2-71131cd2ceff",
+    "Profile": "70Б4",
+    "H": 710,
+    "B": 262,
+    "s": 17,
+    "t": 25
+  },
+  {
+    "CONNECTION_GUID": "086e4834-84b1-4836-9250-df875fc928c2",
+    "Profile": "20Ш0",
+    "H": 190,
+    "B": 149,
+    "s": 5,
+    "t": 7
+  },
+  {
+    "CONNECTION_GUID": "0971ad6c-8c26-44b9-b49a-3422319013ce",
+    "Profile": "20Ш1",
+    "H": 194,
+    "B": 150,
+    "s": 6,
+    "t": 9
+  },
+  {
+    "CONNECTION_GUID": "3658801d-ad0e-4534-8f2d-2bdfeef4df21",
+    "Profile": "20Ш2",
+    "H": 199,
+    "B": 151,
+    "s": 7.5,
+    "t": 11.5
+  },
+  {
+    "CONNECTION_GUID": "1735add0-f084-4283-bf1f-c3a51cd6abac",
+    "Profile": "20Ш3",
+    "H": 204,
+    "B": 152,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "a268e0e6-0ae2-4c2a-b22d-8c20616c1654",
+    "Profile": "20Ш4",
+    "H": 211,
+    "B": 155,
+    "s": 11,
+    "t": 17.5
+  },
+  {
+    "CONNECTION_GUID": "1d97e202-9dec-4f89-a2f8-634b7e30f5d4",
+    "Profile": "20Ш5",
+    "H": 218,
+    "B": 157,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "c06f938c-0307-492c-9311-488e1a9e7c35",
+    "Profile": "20Ш6",
+    "H": 228,
+    "B": 159,
+    "s": 16,
+    "t": 26
+  },
+  {
+    "CONNECTION_GUID": "45cf1b90-3724-4a5a-8d26-7c94c667aad6",
+    "Profile": "25Ш0",
+    "H": 240,
+    "B": 174,
+    "s": 6,
+    "t": 9
+  },
+  {
+    "CONNECTION_GUID": "788c94b3-9372-48b3-8f03-aa10aaee954f",
+    "Profile": "25Ш1",
+    "H": 244,
+    "B": 175,
+    "s": 7,
+    "t": 11
+  },
+  {
+    "CONNECTION_GUID": "70d0b197-d910-4b05-96cf-ddf6a3939278",
+    "Profile": "25Ш2",
+    "H": 249,
+    "B": 176,
+    "s": 8.5,
+    "t": 13.5
+  },
+  {
+    "CONNECTION_GUID": "5a4fbed7-58a1-43d7-b9dd-1d4e6f5b3eb2",
+    "Profile": "25Ш3",
+    "H": 256,
+    "B": 177,
+    "s": 10.5,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "69581f98-0154-4f57-9179-a93cd9ef5dae",
+    "Profile": "25Ш4",
+    "H": 264,
+    "B": 182,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "22c2d454-8ff2-4a8c-8e65-e4f9cb422a0e",
+    "Profile": "25Ш5",
+    "H": 274,
+    "B": 184,
+    "s": 16,
+    "t": 26
+  },
+  {
+    "CONNECTION_GUID": "1a745570-b837-4c8c-a70f-028ec5b8d61f",
+    "Profile": "25Ш6",
+    "H": 286,
+    "B": 186,
+    "s": 19,
+    "t": 32
+  },
+  {
+    "CONNECTION_GUID": "80a5623e-ff07-49e9-8168-dd068bb5ec8c",
+    "Profile": "30Ш0",
+    "H": 290,
+    "B": 199,
+    "s": 7,
+    "t": 10
+  },
+  {
+    "CONNECTION_GUID": "bb547987-4fe2-4de5-9368-371ef255e06b",
+    "Profile": "30Ш1",
+    "H": 294,
+    "B": 200,
+    "s": 8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "4413f176-2388-446e-bdca-64b2dfd6ae08",
+    "Profile": "30Ш2",
+    "H": 300,
+    "B": 201,
+    "s": 9,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "606b8d1b-eaaa-4402-8ee0-2c366f86dd6a",
+    "Profile": "30Ш3",
+    "H": 306,
+    "B": 203,
+    "s": 11,
+    "t": 18
+  },
+  {
+    "CONNECTION_GUID": "c01143fe-941f-477c-8943-18402a91f9d1",
+    "Profile": "30Ш4",
+    "H": 314,
+    "B": 206,
+    "s": 13,
+    "t": 22
+  },
+  {
+    "CONNECTION_GUID": "0b4de8f5-dd2b-4fb2-b0a3-81d8dab18067",
+    "Profile": "30Ш5",
+    "H": 326,
+    "B": 208,
+    "s": 16,
+    "t": 28
+  },
+  {
+    "CONNECTION_GUID": "c9d25212-abbe-4394-994a-43a43d50c59c",
+    "Profile": "30Ш6",
+    "H": 342,
+    "B": 210,
+    "s": 20,
+    "t": 36
+  },
+  {
+    "CONNECTION_GUID": "d7ccc805-d53a-465a-9fe5-770152322b65",
+    "Profile": "35Ш1",
+    "H": 334,
+    "B": 249,
+    "s": 8,
+    "t": 11
+  },
+  {
+    "CONNECTION_GUID": "2ae37748-8d03-4bff-9863-0a9d1212bb82",
+    "Profile": "35Ш2",
+    "H": 340,
+    "B": 250,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "1aefe6a7-139a-4450-9465-cc95a30f6183",
+    "Profile": "35Ш3",
+    "H": 347,
+    "B": 252,
+    "s": 11,
+    "t": 17.5
+  },
+  {
+    "CONNECTION_GUID": "b8c33637-c134-45ef-9d55-4150d8efd042",
+    "Profile": "35Ш4",
+    "H": 354,
+    "B": 254,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "73f70a58-f2cb-4d9b-94e4-2863ad44586f",
+    "Profile": "35Ш5",
+    "H": 364,
+    "B": 258,
+    "s": 16,
+    "t": 26
+  },
+  {
+    "CONNECTION_GUID": "d35d14f6-c701-4c4b-973a-32068b9a1156",
+    "Profile": "35Ш6",
+    "H": 376,
+    "B": 260,
+    "s": 19,
+    "t": 32
+  },
+  {
+    "CONNECTION_GUID": "f6c188cc-79a8-4738-b5f8-567cd0cd7ef8",
+    "Profile": "35Ш7",
+    "H": 392,
+    "B": 262,
+    "s": 23,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "1d77647d-a333-4a16-8d7f-27888fad7ab9",
+    "Profile": "40Ш1",
+    "H": 383,
+    "B": 299,
+    "s": 9.5,
+    "t": 12.5
+  },
+  {
+    "CONNECTION_GUID": "28ae3a38-9a78-4c19-8195-10f172c4cd1d",
+    "Profile": "40Ш2",
+    "H": 390,
+    "B": 300,
+    "s": 10,
+    "t": 16
+  },
+  {
+    "CONNECTION_GUID": "c5ad65bb-0fbc-4086-a576-684a52f6fe16",
+    "Profile": "40Ш3",
+    "H": 397,
+    "B": 302,
+    "s": 12,
+    "t": 19.5
+  },
+  {
+    "CONNECTION_GUID": "7fdf6902-90c8-4408-a79b-0dd4edf4db4c",
+    "Profile": "40Ш4",
+    "H": 406,
+    "B": 304,
+    "s": 14.5,
+    "t": 24
+  },
+  {
+    "CONNECTION_GUID": "58b5d409-ba2a-41f5-bf3a-2105dc4f4a7a",
+    "Profile": "40Ш5",
+    "H": 418,
+    "B": 309,
+    "s": 17.5,
+    "t": 30
+  },
+  {
+    "CONNECTION_GUID": "e062eaed-95ff-45b7-928e-6666f53396d0",
+    "Profile": "40Ш6",
+    "H": 430,
+    "B": 311,
+    "s": 21,
+    "t": 36
+  },
+  {
+    "CONNECTION_GUID": "129ead78-3b6d-46a6-bf7e-40ddfd45c80a",
+    "Profile": "40Ш7",
+    "H": 446,
+    "B": 313,
+    "s": 25,
+    "t": 44
+  },
+  {
+    "CONNECTION_GUID": "7c787519-937d-451d-8f13-08beaf65e161",
+    "Profile": "45Ш0",
+    "H": 434,
+    "B": 299,
+    "s": 10,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "4ee5e2eb-6758-4ac3-ac26-f606779196a8",
+    "Profile": "45Ш1",
+    "H": 440,
+    "B": 300,
+    "s": 11,
+    "t": 18
+  },
+  {
+    "CONNECTION_GUID": "54ac54ed-7cfd-4b09-b4fd-b7b59b551ac5",
+    "Profile": "45Ш2",
+    "H": 446,
+    "B": 302,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "d3512b50-40e1-4728-a0e5-c6f7a3248cc1",
+    "Profile": "45Ш3",
+    "H": 452,
+    "B": 304,
+    "s": 15,
+    "t": 24
+  },
+  {
+    "CONNECTION_GUID": "00b89a74-804e-40a7-9c3c-0aa88b1a12cf",
+    "Profile": "45Ш4",
+    "H": 464,
+    "B": 308,
+    "s": 18,
+    "t": 30
+  },
+  {
+    "CONNECTION_GUID": "1378787c-4373-452c-8198-421e38de8b4c",
+    "Profile": "45Ш5",
+    "H": 476,
+    "B": 310,
+    "s": 21,
+    "t": 36
+  },
+  {
+    "CONNECTION_GUID": "c4a0811d-13d3-4743-888e-c2a5949507af",
+    "Profile": "45Ш6",
+    "H": 492,
+    "B": 312,
+    "s": 25,
+    "t": 44
+  },
+  {
+    "CONNECTION_GUID": "6f07bd4b-a0b1-4950-9746-e124037b5ca5",
+    "Profile": "50Ш1",
+    "H": 482,
+    "B": 300,
+    "s": 11,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "bb79397e-b848-457c-a136-dbc037bbbbfa",
+    "Profile": "50Ш2",
+    "H": 487,
+    "B": 300,
+    "s": 14.5,
+    "t": 17.5
+  },
+  {
+    "CONNECTION_GUID": "c4cf6395-e571-4fad-a7cc-b87ff5a7705b",
+    "Profile": "50Ш3",
+    "H": 493,
+    "B": 300,
+    "s": 15.5,
+    "t": 20.5
+  },
+  {
+    "CONNECTION_GUID": "d8e6b590-60e4-400a-a87c-3b3dfa180679",
+    "Profile": "50Ш4",
+    "H": 499,
+    "B": 300,
+    "s": 16.5,
+    "t": 23.5
+  },
+  {
+    "CONNECTION_GUID": "625e725a-631c-4b03-b09c-43e029280086",
+    "Profile": "50Ш5",
+    "H": 508,
+    "B": 302,
+    "s": 19,
+    "t": 28
+  },
+  {
+    "CONNECTION_GUID": "2203914f-b1ff-40dc-989c-923b0f06ba6e",
+    "Profile": "50Ш6",
+    "H": 518,
+    "B": 310,
+    "s": 22,
+    "t": 33
+  },
+  {
+    "CONNECTION_GUID": "d1cb4a84-6c16-4fb7-b929-cea8b31ab9ad",
+    "Profile": "50Ш7",
+    "H": 532,
+    "B": 312,
+    "s": 26,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "77bcdcb9-e623-4c95-a9ac-a8e04ef2a944",
+    "Profile": "50Ш8",
+    "H": 548,
+    "B": 314,
+    "s": 30,
+    "t": 48
+  },
+  {
+    "CONNECTION_GUID": "22e5b6c9-6805-48aa-9480-3c9d6315e54e",
+    "Profile": "60Ш1",
+    "H": 582,
+    "B": 300,
+    "s": 12,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "f140221b-db37-4392-9e55-7794d6cabca1",
+    "Profile": "60Ш2",
+    "H": 589,
+    "B": 300,
+    "s": 16,
+    "t": 20.5
+  },
+  {
+    "CONNECTION_GUID": "f0a02cde-de84-48bc-8bd1-16bb7df02a24",
+    "Profile": "60Ш3",
+    "H": 597,
+    "B": 300,
+    "s": 18,
+    "t": 24.5
+  },
+  {
+    "CONNECTION_GUID": "16612b94-00e4-4d5f-8ff7-55325bdc5009",
+    "Profile": "60Ш4",
+    "H": 605,
+    "B": 300,
+    "s": 20,
+    "t": 28.5
+  },
+  {
+    "CONNECTION_GUID": "6bb2f330-e0d2-4dd4-a54f-843d0670783b",
+    "Profile": "60Ш5",
+    "H": 616,
+    "B": 302,
+    "s": 23,
+    "t": 34
+  },
+  {
+    "CONNECTION_GUID": "33f20ad4-ef6f-4939-8a70-add2eca8d298",
+    "Profile": "60Ш6",
+    "H": 630,
+    "B": 315,
+    "s": 27,
+    "t": 41
+  },
+  {
+    "CONNECTION_GUID": "38e50470-59c7-4986-80eb-86b89346a32f",
+    "Profile": "60Ш7",
+    "H": 644,
+    "B": 317,
+    "s": 31,
+    "t": 48
+  },
+  {
+    "CONNECTION_GUID": "6b8f70a9-83fb-43d1-90d2-67a31710b1c6",
+    "Profile": "60Ш8",
+    "H": 664,
+    "B": 319,
+    "s": 36,
+    "t": 58
+  },
+  {
+    "CONNECTION_GUID": "6c010814-bdf4-4a69-aafb-f01070c903c7",
+    "Profile": "70Ш1",
+    "H": 692,
+    "B": 300,
+    "s": 13,
+    "t": 20
+  },
+  {
+    "CONNECTION_GUID": "b73adee5-e708-476a-bc5f-60b04e016039",
+    "Profile": "70Ш2",
+    "H": 698,
+    "B": 300,
+    "s": 15,
+    "t": 23
+  },
+  {
+    "CONNECTION_GUID": "b522f762-80eb-40a2-b494-a5f1cf46e4c0",
+    "Profile": "70Ш3",
+    "H": 707,
+    "B": 300,
+    "s": 18,
+    "t": 27.5
+  },
+  {
+    "CONNECTION_GUID": "0f93bb8f-bf96-46e4-ac08-1683423feeea",
+    "Profile": "70Ш4",
+    "H": 715,
+    "B": 300,
+    "s": 20.5,
+    "t": 31.5
+  },
+  {
+    "CONNECTION_GUID": "c544d8ba-e900-4268-bd9b-a91032531ca4",
+    "Profile": "70Ш5",
+    "H": 725,
+    "B": 300,
+    "s": 23,
+    "t": 36.5
+  },
+  {
+    "CONNECTION_GUID": "54e1e6f9-4195-4a38-8c48-7ac882254d3b",
+    "Profile": "70Ш6",
+    "H": 740,
+    "B": 313,
+    "s": 27,
+    "t": 44
+  },
+  {
+    "CONNECTION_GUID": "9ca01f24-0dc8-4f41-874d-2411f05f7b9a",
+    "Profile": "70Ш7",
+    "H": 758,
+    "B": 315,
+    "s": 32,
+    "t": 53
+  },
+  {
+    "CONNECTION_GUID": "b44bb9bc-c32d-49ef-8cc6-24e1f1a17c2a",
+    "Profile": "70Ш8",
+    "H": 780,
+    "B": 317,
+    "s": 38,
+    "t": 64
+  },
+  {
+    "CONNECTION_GUID": "c4b80035-9837-4b9b-90ee-bb74d452e126",
+    "Profile": "80Ш1",
+    "H": 782,
+    "B": 300,
+    "s": 13.5,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "acb217ad-17ff-4845-9ea3-a3778e1cecca",
+    "Profile": "80Ш2",
+    "H": 792,
+    "B": 300,
+    "s": 14,
+    "t": 22
+  },
+  {
+    "CONNECTION_GUID": "446d2b3f-622d-4173-bacf-dbdb728152bd",
+    "Profile": "90Ш1",
+    "H": 881,
+    "B": 299,
+    "s": 15,
+    "t": 18.5
+  },
+  {
+    "CONNECTION_GUID": "1f3213ae-a6bf-4897-9531-8f8ff35a47d2",
+    "Profile": "90Ш2",
+    "H": 890,
+    "B": 299,
+    "s": 15,
+    "t": 23
+  },
+  {
+    "CONNECTION_GUID": "026b8329-42ef-4250-8480-21d8639ef699",
+    "Profile": "100Ш1",
+    "H": 990,
+    "B": 320,
+    "s": 16,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "7ede2287-3199-4629-97e6-f696ec81d025",
+    "Profile": "100Ш2",
+    "H": 998,
+    "B": 320,
+    "s": 17,
+    "t": 25
+  },
+  {
+    "CONNECTION_GUID": "9fad452f-7a7c-40c8-8649-30d5052df7d9",
+    "Profile": "100Ш3",
+    "H": 1006,
+    "B": 320,
+    "s": 18,
+    "t": 29
+  },
+  {
+    "CONNECTION_GUID": "7892b765-027b-4f87-836f-5f49e88b9213",
+    "Profile": "100Ш4",
+    "H": 1013,
+    "B": 320,
+    "s": 19.5,
+    "t": 32.5
+  },
+  {
+    "CONNECTION_GUID": "a2d30122-0030-4722-a496-a23cd521c574",
+    "Profile": "15К1",
+    "H": 147,
+    "B": 149,
+    "s": 6,
+    "t": 8.5
+  },
+  {
+    "CONNECTION_GUID": "bcef54e5-cd3f-43fd-8c00-16cb5994a498",
+    "Profile": "15К2",
+    "H": 150,
+    "B": 150,
+    "s": 7,
+    "t": 10
+  },
+  {
+    "CONNECTION_GUID": "f0d20f5d-5832-440c-9350-12fec1754773",
+    "Profile": "15К3",
+    "H": 155,
+    "B": 151,
+    "s": 8.5,
+    "t": 12.5
+  },
+  {
+    "CONNECTION_GUID": "859b429a-b66a-4e31-a18c-ab021c9bdf3d",
+    "Profile": "15К4",
+    "H": 160,
+    "B": 152,
+    "s": 10,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "e475dc63-682c-43a7-a95e-4b3c44959a81",
+    "Profile": "15К5",
+    "H": 166,
+    "B": 153,
+    "s": 12,
+    "t": 18
+  },
+  {
+    "CONNECTION_GUID": "cda15378-d8f0-4603-8f0f-28a67deb897c",
+    "Profile": "20К1",
+    "H": 196,
+    "B": 199,
+    "s": 6.5,
+    "t": 10
+  },
+  {
+    "CONNECTION_GUID": "3a903dab-f0a9-4f73-ae3b-b0a874e16de7",
+    "Profile": "20К2",
+    "H": 200,
+    "B": 200,
+    "s": 8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "813ac65c-54bd-4784-8cf0-f42a827c357e",
+    "Profile": "20К3",
+    "H": 204,
+    "B": 201,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "1295c96a-c913-4a86-9abe-090e73821692",
+    "Profile": "20К4",
+    "H": 210,
+    "B": 201,
+    "s": 10.5,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "1017fd41-3cfb-4fba-a970-e5b2658e4ad3",
+    "Profile": "20К5",
+    "H": 214,
+    "B": 202,
+    "s": 12,
+    "t": 19
+  },
+  {
+    "CONNECTION_GUID": "d93379e1-d73c-466c-8011-dc3ed162001c",
+    "Profile": "20К6",
+    "H": 220,
+    "B": 202,
+    "s": 14,
+    "t": 22
+  },
+  {
+    "CONNECTION_GUID": "5e1eaa04-955c-4a54-b45d-66d5208d3487",
+    "Profile": "20К7",
+    "H": 226,
+    "B": 203,
+    "s": 16,
+    "t": 25
+  },
+  {
+    "CONNECTION_GUID": "b78a2c54-f55a-41d2-ad3e-cfe8f3528ea5",
+    "Profile": "20К8",
+    "H": 234,
+    "B": 203,
+    "s": 18,
+    "t": 29
+  },
+  {
+    "CONNECTION_GUID": "12433b79-97af-44f4-b9f3-619e46a60c68",
+    "Profile": "25К1",
+    "H": 246,
+    "B": 249,
+    "s": 8,
+    "t": 12
+  },
+  {
+    "CONNECTION_GUID": "ec1e9cdd-abd3-4ea8-bd67-bdffa7858839",
+    "Profile": "25К2",
+    "H": 250,
+    "B": 250,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "248adc94-8729-4e82-ab71-c63bbda8b838",
+    "Profile": "25К3",
+    "H": 253,
+    "B": 251,
+    "s": 10,
+    "t": 15.5
+  },
+  {
+    "CONNECTION_GUID": "35be1388-d657-4c21-8cd1-a6e9351ac717",
+    "Profile": "25К4",
+    "H": 257,
+    "B": 252,
+    "s": 11,
+    "t": 17.5
+  },
+  {
+    "CONNECTION_GUID": "2408109c-a1ec-47fa-8c62-f444c204bde5",
+    "Profile": "25К5",
+    "H": 262,
+    "B": 253,
+    "s": 12.5,
+    "t": 20
+  },
+  {
+    "CONNECTION_GUID": "bfd1e8c1-c646-4256-bbe9-ae533c5714c9",
+    "Profile": "25К6",
+    "H": 267,
+    "B": 253,
+    "s": 14,
+    "t": 22.5
+  },
+  {
+    "CONNECTION_GUID": "9171c248-dec4-4a4d-986e-ce5415a7b82a",
+    "Profile": "25К7",
+    "H": 274,
+    "B": 258,
+    "s": 16,
+    "t": 26
+  },
+  {
+    "CONNECTION_GUID": "81bb62af-6255-468a-bf8f-903b550d754c",
+    "Profile": "25К8",
+    "H": 281,
+    "B": 259,
+    "s": 18,
+    "t": 29.5
+  },
+  {
+    "CONNECTION_GUID": "d61bf5f2-eb30-4285-8ec5-403c3ab8daa4",
+    "Profile": "25К9",
+    "H": 288,
+    "B": 260,
+    "s": 20,
+    "t": 33
+  },
+  {
+    "CONNECTION_GUID": "cad5a4ba-8055-43ed-8f63-a7f8e8795d67",
+    "Profile": "25К10",
+    "H": 298,
+    "B": 261,
+    "s": 23,
+    "t": 38
+  },
+  {
+    "CONNECTION_GUID": "73eb507e-a569-4efa-9fc6-293bd200a096",
+    "Profile": "30К1",
+    "H": 298,
+    "B": 299,
+    "s": 9,
+    "t": 14
+  },
+  {
+    "CONNECTION_GUID": "1da4ac23-b7ce-4de6-b479-59bd096d8af1",
+    "Profile": "30К2",
+    "H": 300,
+    "B": 300,
+    "s": 10,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "4ca7f9aa-434c-4b61-b20c-c6e942a06b9a",
+    "Profile": "30К3",
+    "H": 300,
+    "B": 305,
+    "s": 15,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "c3c1089f-a5cc-4aff-9be6-1772ce52ab4b",
+    "Profile": "30К4",
+    "H": 304,
+    "B": 301,
+    "s": 11,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "01e23c25-7ade-4e10-af25-b62b5f38099e",
+    "Profile": "30К5",
+    "H": 308,
+    "B": 301,
+    "s": 12,
+    "t": 19
+  },
+  {
+    "CONNECTION_GUID": "620cdcf5-f8e6-47b7-b7f2-e7c8fcf539c7",
+    "Profile": "30К6",
+    "H": 312,
+    "B": 302,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "f5326de5-5b35-4180-a071-8180f983f4ac",
+    "Profile": "30К7",
+    "H": 316,
+    "B": 302,
+    "s": 14.5,
+    "t": 23
+  },
+  {
+    "CONNECTION_GUID": "b151c644-a80c-4c71-bcac-9c89f681bc01",
+    "Profile": "30К8",
+    "H": 316,
+    "B": 357,
+    "s": 14.5,
+    "t": 23
+  },
+  {
+    "CONNECTION_GUID": "943fd549-5436-46ca-a583-d4a55c19c4ab",
+    "Profile": "30К9",
+    "H": 322,
+    "B": 358,
+    "s": 16,
+    "t": 26
+  },
+  {
+    "CONNECTION_GUID": "e6689aed-286f-43f4-a6a3-f7bd4f0dccff",
+    "Profile": "30К10",
+    "H": 328,
+    "B": 359,
+    "s": 18,
+    "t": 29
+  },
+  {
+    "CONNECTION_GUID": "d90660c3-b18a-4989-b2a7-717281bafb99",
+    "Profile": "30К11",
+    "H": 334,
+    "B": 360,
+    "s": 20,
+    "t": 32
+  },
+  {
+    "CONNECTION_GUID": "3711b684-30e3-4b30-a75a-6d18b158f90c",
+    "Profile": "30К12",
+    "H": 341,
+    "B": 361,
+    "s": 22,
+    "t": 35.5
+  },
+  {
+    "CONNECTION_GUID": "07f91281-6025-4203-be31-d1f38ab813a4",
+    "Profile": "30К13",
+    "H": 350,
+    "B": 362,
+    "s": 24,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "66ca5f69-f473-4e2e-b224-3ecb9fa97609",
+    "Profile": "30К14",
+    "H": 356,
+    "B": 371,
+    "s": 27,
+    "t": 43
+  },
+  {
+    "CONNECTION_GUID": "ce62f200-948a-42e7-a15b-bb237fe527b1",
+    "Profile": "30К15",
+    "H": 364,
+    "B": 372,
+    "s": 30,
+    "t": 47
+  },
+  {
+    "CONNECTION_GUID": "4203665a-3053-4dcb-baa0-be3887f03383",
+    "Profile": "30К16",
+    "H": 374,
+    "B": 373,
+    "s": 33,
+    "t": 52
+  },
+  {
+    "CONNECTION_GUID": "0a976198-4bda-4e1b-a8e7-10260e7c4806",
+    "Profile": "30К17",
+    "H": 384,
+    "B": 374,
+    "s": 36,
+    "t": 57
+  },
+  {
+    "CONNECTION_GUID": "489df764-ca89-4b6d-8d2b-c466fa88fdc1",
+    "Profile": "30К18",
+    "H": 396,
+    "B": 375,
+    "s": 39,
+    "t": 63
+  },
+  {
+    "CONNECTION_GUID": "28bfe425-54f9-41f2-b9b9-a4d36658bf53",
+    "Profile": "30К19",
+    "H": 408,
+    "B": 385,
+    "s": 43,
+    "t": 69
+  },
+  {
+    "CONNECTION_GUID": "ce395002-1ba7-4324-a71c-f39c94c8c50f",
+    "Profile": "30К20",
+    "H": 422,
+    "B": 387,
+    "s": 47,
+    "t": 76
+  },
+  {
+    "CONNECTION_GUID": "e46826b6-a96a-4190-b974-00ca66dfd086",
+    "Profile": "30К21",
+    "H": 440,
+    "B": 389,
+    "s": 52,
+    "t": 85
+  },
+  {
+    "CONNECTION_GUID": "fdc4762a-98e8-4d2d-9c34-6b6b6f7145a4",
+    "Profile": "35К1",
+    "H": 342,
+    "B": 348,
+    "s": 10,
+    "t": 15
+  },
+  {
+    "CONNECTION_GUID": "bea6fe6b-3d5f-4af6-bb37-e53aeb1db455",
+    "Profile": "35К1,5",
+    "H": 346,
+    "B": 349,
+    "s": 11,
+    "t": 17
+  },
+  {
+    "CONNECTION_GUID": "bdf9188e-c50e-4f42-9d16-4dcdd8fa5867",
+    "Profile": "35К2",
+    "H": 350,
+    "B": 350,
+    "s": 12,
+    "t": 19
+  },
+  {
+    "CONNECTION_GUID": "244c3b7b-6ae4-445f-ac2b-04a59aff2b27",
+    "Profile": "35К3",
+    "H": 355,
+    "B": 351,
+    "s": 13.5,
+    "t": 21.5
+  },
+  {
+    "CONNECTION_GUID": "d120cb74-9a62-4c3a-8341-e7d4d4ddcd2d",
+    "Profile": "35К4",
+    "H": 360,
+    "B": 352,
+    "s": 15,
+    "t": 24
+  },
+  {
+    "CONNECTION_GUID": "6b5d41b2-2f25-4a4d-b252-d7d7c0cedd52",
+    "Profile": "35К5",
+    "H": 365,
+    "B": 353,
+    "s": 16.5,
+    "t": 26.5
+  },
+  {
+    "CONNECTION_GUID": "77f42c52-628a-4a20-ae9c-6eec8c76bb91",
+    "Profile": "35К6",
+    "H": 369,
+    "B": 360,
+    "s": 18,
+    "t": 28.5
+  },
+  {
+    "CONNECTION_GUID": "ae149a74-e4bd-4946-96a4-c7ef857ff6c7",
+    "Profile": "35К7",
+    "H": 376,
+    "B": 361,
+    "s": 20,
+    "t": 32
+  },
+  {
+    "CONNECTION_GUID": "69a15e4f-e2f9-42d4-9318-541351577c30",
+    "Profile": "35К8",
+    "H": 382,
+    "B": 362,
+    "s": 22,
+    "t": 35
+  },
+  {
+    "CONNECTION_GUID": "d85e3492-a0e7-4c1d-8e5c-d2a23312eb51",
+    "Profile": "35К9",
+    "H": 389,
+    "B": 363,
+    "s": 24,
+    "t": 38.5
+  },
+  {
+    "CONNECTION_GUID": "8a8f4c46-917d-4bf9-a447-834810f6dbe9",
+    "Profile": "35К10",
+    "H": 396,
+    "B": 364,
+    "s": 26.5,
+    "t": 42
+  },
+  {
+    "CONNECTION_GUID": "dfe82762-f0f0-427d-bc7c-8f55f6417700",
+    "Profile": "35К11",
+    "H": 404,
+    "B": 374,
+    "s": 29,
+    "t": 46
+  },
+  {
+    "CONNECTION_GUID": "dcd43819-12aa-4868-b2a3-3262614f5ac2",
+    "Profile": "35К12",
+    "H": 414,
+    "B": 375,
+    "s": 32,
+    "t": 51
+  },
+  {
+    "CONNECTION_GUID": "fa85de97-572e-48ad-908d-b9311178dded",
+    "Profile": "35К13",
+    "H": 424,
+    "B": 376,
+    "s": 35,
+    "t": 56
+  },
+  {
+    "CONNECTION_GUID": "51a22bf6-efec-4532-b78d-0227ee961804",
+    "Profile": "35К14",
+    "H": 434,
+    "B": 377,
+    "s": 38,
+    "t": 61
+  },
+  {
+    "CONNECTION_GUID": "b868ccf4-1f02-4271-be6c-e29a57c19a67",
+    "Profile": "35К15",
+    "H": 446,
+    "B": 378,
+    "s": 42,
+    "t": 67
+  },
+  {
+    "CONNECTION_GUID": "c1430782-a69d-448a-a805-90da746d3687",
+    "Profile": "35К16",
+    "H": 458,
+    "B": 392,
+    "s": 46,
+    "t": 73
+  },
+  {
+    "CONNECTION_GUID": "80923dda-4bf7-4b3e-bfff-711fd4da2131",
+    "Profile": "35К17",
+    "H": 472,
+    "B": 393,
+    "s": 50,
+    "t": 80
+  },
+  {
+    "CONNECTION_GUID": "d75929b3-6153-4acd-8ffe-99aa48be65e3",
+    "Profile": "35К18",
+    "H": 488,
+    "B": 394,
+    "s": 55,
+    "t": 88
+  },
+  {
+    "CONNECTION_GUID": "1f58275f-047a-409c-b718-474d678d7e5d",
+    "Profile": "35К19",
+    "H": 506,
+    "B": 395,
+    "s": 60,
+    "t": 97
+  },
+  {
+    "CONNECTION_GUID": "b8f67e88-ce02-41f0-9fe9-8442a873d8a3",
+    "Profile": "35К20",
+    "H": 520,
+    "B": 409,
+    "s": 65,
+    "t": 104
+  },
+  {
+    "CONNECTION_GUID": "2fd3de7d-ca89-4075-a715-c086f4cbad96",
+    "Profile": "35К21",
+    "H": 540,
+    "B": 411,
+    "s": 71,
+    "t": 114
+  },
+  {
+    "CONNECTION_GUID": "58911198-d7c9-481b-be38-afd84009db39",
+    "Profile": "35К22",
+    "H": 562,
+    "B": 413,
+    "s": 77,
+    "t": 125
+  },
+  {
+    "CONNECTION_GUID": "bcc67531-259f-4f00-8b48-f35d09c74340",
+    "Profile": "35К23",
+    "H": 580,
+    "B": 426,
+    "s": 84,
+    "t": 134
+  },
+  {
+    "CONNECTION_GUID": "9ac39ee2-f659-4577-9471-0cc5e97a75fe",
+    "Profile": "35К24",
+    "H": 604,
+    "B": 430,
+    "s": 92,
+    "t": 146
+  },
+  {
+    "CONNECTION_GUID": "ee39299c-6db9-439a-9e6c-36b1347b43e7",
+    "Profile": "40К1",
+    "H": 394,
+    "B": 398,
+    "s": 11,
+    "t": 18
+  },
+  {
+    "CONNECTION_GUID": "b54d478e-b7eb-4e7e-ab5a-6fc605be80e1",
+    "Profile": "40К2",
+    "H": 400,
+    "B": 400,
+    "s": 13,
+    "t": 21
+  },
+  {
+    "CONNECTION_GUID": "41c75303-ef4c-404c-b55f-484d703af571",
+    "Profile": "40К3",
+    "H": 406,
+    "B": 403,
+    "s": 16,
+    "t": 24
+  },
+  {
+    "CONNECTION_GUID": "d2f01331-e9b1-49be-9663-8a9ae455c1eb",
+    "Profile": "40К4",
+    "H": 414,
+    "B": 405,
+    "s": 18,
+    "t": 28
+  },
+  {
+    "CONNECTION_GUID": "42257384-1216-4adc-9470-8d973cc83384",
+    "Profile": "40К4,5",
+    "H": 420,
+    "B": 403,
+    "s": 20,
+    "t": 31
+  },
+  {
+    "CONNECTION_GUID": "9a2a1fe3-df4a-4e66-bc26-51a57c1bfb4c",
+    "Profile": "40К5",
+    "H": 429,
+    "B": 400,
+    "s": 23,
+    "t": 35.5
+  },
+  {
+    "CONNECTION_GUID": "1c58976b-6ed7-48c1-a884-2fcc3e696ae9",
+    "Profile": "H-644х42+317х68",
+    "H": 644,
+    "B": 0,
+    "s": 0,
+    "t": 68
+  },
+  {
+    "CONNECTION_GUID": "cc6d636e-e794-4e40-82bb-04db9a2acc6b",
+    "Profile": "H-650х20+315х25",
+    "H": 650,
+    "B": 0,
+    "s": 0,
+    "t": 25
+  },
+  {
+    "CONNECTION_GUID": "664b57fd-fa40-4a45-9072-8d30238ead19",
+    "Profile": "H-700х20+630х25",
+    "H": 700,
+    "B": 0,
+    "s": 0,
+    "t": 25
+  },
+  {
+    "CONNECTION_GUID": "6a7ecd04-ff1a-4e36-b669-84a01f4bd0ad",
+    "Profile": "H-1000х20+500х32",
+    "H": 1000,
+    "B": 0,
+    "s": 0,
+    "t": 32
+  },
+  {
+    "CONNECTION_GUID": "67823efa-b04b-4cd1-b32c-04f7e3c88b12",
+    "Profile": "H-1100x25+500x40",
+    "H": 1100,
+    "B": 0,
+    "s": 0,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "b24ac20c-9ac2-4833-92c8-2ac4bb70d6e4",
+    "Profile": "H-1200x25+500x40",
+    "H": 1200,
+    "B": 0,
+    "s": 0,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "df7a38b7-6aeb-4805-97f4-289dca3e5c0b",
+    "Profile": "H-1100х25+500х40",
+    "H": 1100,
+    "B": 0,
+    "s": 0,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "e03d8aca-ae24-4e41-ac07-67f37561da97",
+    "Profile": "H-560х25+500х40",
+    "H": 560,
+    "B": 0,
+    "s": 0,
+    "t": 40
+  },
+  {
+    "CONNECTION_GUID": "24b971fb-6e49-4ed6-888e-5d1f916adcc2",
+    "Profile": "H-610х30+650х50",
+    "H": 610,
+    "B": 0,
+    "s": 0,
+    "t": 50
+  },
+  {
+    "CONNECTION_GUID": "02e88bce-8190-4a83-a272-9a4c15aa4af4",
+    "Profile": "H-750х40+700х40",
+    "H": 750,
+    "B": 0,
+    "s": 0,
+    "t": 40
+  }
+]
