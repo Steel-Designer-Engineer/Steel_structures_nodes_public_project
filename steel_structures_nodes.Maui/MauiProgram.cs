@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using steel_structures_nodes.Data.DependencyInjection;
+using steel_structures_nodes.Data.Contracts;
 using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Domain.Fallback;
 using steel_structures_nodes.Maui.Services;
 using steel_structures_nodes.Maui.ViewModels;
 
@@ -29,18 +30,18 @@ public static class MauiProgram
 
         builder.Configuration.AddConfiguration(config);
 
-        // Register Data layer (MongoDB repositories)
         var dataAccessFailureNotifier = new DataAccessFailureNotifier();
-        try
-        {
-            builder.Services.AddDataLayer(builder.Configuration, dataAccessFailureNotifier);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"DataLayer registration failed: {ex.Message}");
-            dataAccessFailureNotifier.Report("MauiProgram.AddDataLayer", "Не удалось инициализировать слой данных.", ex);
-            throw;
-        }
+        var unavailableMessage = "Слой данных недоступен: проект steel_structures_nodes.Data отсутствует в решении.";
+        dataAccessFailureNotifier.Report("MauiProgram", unavailableMessage);
+
+        var interactionRepository = new UnavailableInteractionTableRepository(unavailableMessage);
+
+        builder.Services.AddSingleton<IDataAccessFailureNotifier>(dataAccessFailureNotifier);
+        builder.Services.AddSingleton<IInteractionTableRepository>(interactionRepository);
+        builder.Services.AddSingleton<IInteractionTableLookupRepository>(interactionRepository);
+        builder.Services.AddSingleton<IInteractionTableReadRepository>(interactionRepository);
+        builder.Services.AddSingleton<ICalculationResultRepository, UnavailableCalculationResultRepository>();
+        builder.Services.AddSingleton<INodeImageRepository, UnavailableNodeImageRepository>();
 
         // Redis для кэширования изображений
         var redisConnectionString = builder.Configuration.GetConnectionString("Redis");

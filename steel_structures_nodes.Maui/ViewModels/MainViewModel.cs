@@ -70,31 +70,24 @@ public partial class MainViewModel : ObservableObject
 
     // --- Selected values ---
 
-    [ObservableProperty]
-    private string? _selectedName;
-
-    [ObservableProperty]
-    private string? _selectedProfileColumn;
-
-    [ObservableProperty]
-    private string? _selectedProfileBeam;
-
-    [ObservableProperty]
-    private string? _selectedConnectionCode;
+    [ObservableProperty] public partial string? SelectedName { get; set; }
+    [ObservableProperty] public partial string? SelectedProfileColumn { get; set; }
+    [ObservableProperty] public partial string? SelectedProfileBeam { get; set; }
+    [ObservableProperty] public partial string? SelectedConnectionCode { get; set; }
 
     // --- Node image ---
 
     private List<ImageSource> _nodeImages = [];
     private int _nodeImageIndex;
 
-    [ObservableProperty] private ImageSource? _selectedNodeImage;
-    [ObservableProperty] private string? _selectedNodeDescription;
-    [ObservableProperty] private string? _imageIndexText;
-    [ObservableProperty] private bool _hasMultipleImages;
+    [ObservableProperty] public partial ImageSource? SelectedNodeImage { get; set; }
+    [ObservableProperty] public partial string? SelectedNodeDescription { get; set; }
+    [ObservableProperty] public partial string? ImageIndexText { get; set; }
+    [ObservableProperty] public partial bool HasMultipleImages { get; set; }
 
     /// <summary>Пояснения из поля Explanations документа базы данных.</summary>
-    [ObservableProperty] private string? _nodeExplanation;
-    [ObservableProperty] private bool _hasExplanation;
+    [ObservableProperty] public partial string? NodeExplanation { get; set; }
+    [ObservableProperty] public partial bool HasExplanation { get; set; }
 
     // --- Node data ---
 
@@ -106,144 +99,144 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     public event Action? ChartUpdated;
 
-    [ObservableProperty] private string? _typeNode;
-    [ObservableProperty] private string? _tableBrand;
-    [ObservableProperty] private string? _status;
-    [ObservableProperty] private bool _isBusy;
-    [ObservableProperty] private bool _hasData;
+    [ObservableProperty] public partial string? TypeNode { get; set; }
+    [ObservableProperty] public partial string? TableBrand { get; set; }
+    [ObservableProperty] public partial string? Status { get; set; }
+    [ObservableProperty] public partial bool IsBusy { get; set; }
+    [ObservableProperty] public partial bool HasData { get; set; }
 
     // Несущая способность
-    [ObservableProperty] private string? _ntValue;
-    [ObservableProperty] private string? _ncValue;
-    [ObservableProperty] private string? _nValue;
-    [ObservableProperty] private string? _qyValue;
-    [ObservableProperty] private string? _qzValue;
-    [ObservableProperty] private string? _mxValue;
-    [ObservableProperty] private string? _myValue;
-    [ObservableProperty] private string? _mzValue;
-    [ObservableProperty] private string? _mwValue;
-    [ObservableProperty] private string? _mnegValue;
+    [ObservableProperty] public partial string? NtValue { get; set; }
+    [ObservableProperty] public partial string? NcValue { get; set; }
+    [ObservableProperty] public partial string? NValue { get; set; }
+    [ObservableProperty] public partial string? QyValue { get; set; }
+    [ObservableProperty] public partial string? QzValue { get; set; }
+    [ObservableProperty] public partial string? MxValue { get; set; }
+    [ObservableProperty] public partial string? MyValue { get; set; }
+    [ObservableProperty] public partial string? MzValue { get; set; }
+    [ObservableProperty] public partial string? MwValue { get; set; }
+    [ObservableProperty] public partial string? MnegValue { get; set; }
 
     // График несущей способности
-    [ObservableProperty] private CapacityChartDrawable? _capacityChart;
-    [ObservableProperty] private double _capacityChartHeight;
+    [ObservableProperty] public partial CapacityChartDrawable? CapacityChart { get; set; }
+    [ObservableProperty] public partial double CapacityChartHeight { get; set; }
 
     // Жёсткость
-    [ObservableProperty] private string? _sjValue;
-    [ObservableProperty] private string? _sjoValue;
+    [ObservableProperty] public partial string? SjValue { get; set; }
+    [ObservableProperty] public partial string? SjoValue { get; set; }
 
     // Пользовательские усилия для диаграммы
-    [ObservableProperty] private string? _userNt;
-    [ObservableProperty] private string? _userNc;
-    [ObservableProperty] private string? _userN;
-    [ObservableProperty] private string? _userQy;
-    [ObservableProperty] private string? _userQz;
-    [ObservableProperty] private string? _userMx;
-    [ObservableProperty] private string? _userMy;
-    [ObservableProperty] private string? _userMz;
-    [ObservableProperty] private string? _userMw;
+    [ObservableProperty] public partial string? UserNt { get; set; }
+    [ObservableProperty] public partial string? UserNc { get; set; }
+    [ObservableProperty] public partial string? UserN { get; set; }
+    [ObservableProperty] public partial string? UserQy { get; set; }
+    [ObservableProperty] public partial string? UserQz { get; set; }
+    [ObservableProperty] public partial string? UserMx { get; set; }
+    [ObservableProperty] public partial string? UserMy { get; set; }
+    [ObservableProperty] public partial string? UserMz { get; set; }
+    [ObservableProperty] public partial string? UserMw { get; set; }
 
     // Коэффициенты
-    [ObservableProperty] private string? _alphaValue;
-    [ObservableProperty] private string? _betaValue;
-    [ObservableProperty] private string? _gammaValue;
-    [ObservableProperty] private string? _deltaValue;
-    [ObservableProperty] private string? _epsilonValue;
-    [ObservableProperty] private string? _lambdaValue;
+    [ObservableProperty] public partial string? AlphaValue { get; set; }
+    [ObservableProperty] public partial string? BetaValue { get; set; }
+    [ObservableProperty] public partial string? GammaValue { get; set; }
+    [ObservableProperty] public partial string? DeltaValue { get; set; }
+    [ObservableProperty] public partial string? EpsilonValue { get; set; }
+    [ObservableProperty] public partial string? LambdaValue { get; set; }
 
     // Геометрия балки
-    [ObservableProperty] private string? _beamProfile;
-    [ObservableProperty] private string? _beamH;
-    [ObservableProperty] private string? _beamB;
-    [ObservableProperty] private string? _beamS;
-    [ObservableProperty] private string? _beamT;
-    [ObservableProperty] private string? _beamA;
-    [ObservableProperty] private string? _beamP;
-    [ObservableProperty] private string? _beamIz;
-    [ObservableProperty] private string? _beamIy;
-    [ObservableProperty] private string? _beamIx;
-    [ObservableProperty] private string? _beamWz;
-    [ObservableProperty] private string? _beamWy;
-    [ObservableProperty] private string? _beamWx;
-    [ObservableProperty] private string? _beamSz;
-    [ObservableProperty] private string? _beamSy;
-    [ObservableProperty] private string? _beamiz;
-    [ObservableProperty] private string? _beamiy;
-    [ObservableProperty] private string? _beamXo;
+    [ObservableProperty] public partial string? BeamProfile { get; set; }
+    [ObservableProperty] public partial string? BeamH { get; set; }
+    [ObservableProperty] public partial string? BeamB { get; set; }
+    [ObservableProperty] public partial string? BeamS { get; set; }
+    [ObservableProperty] public partial string? BeamT { get; set; }
+    [ObservableProperty] public partial string? BeamA { get; set; }
+    [ObservableProperty] public partial string? BeamP { get; set; }
+    [ObservableProperty] public partial string? BeamIz { get; set; }
+    [ObservableProperty] public partial string? BeamIy { get; set; }
+    [ObservableProperty] public partial string? BeamIx { get; set; }
+    [ObservableProperty] public partial string? BeamWz { get; set; }
+    [ObservableProperty] public partial string? BeamWy { get; set; }
+    [ObservableProperty] public partial string? BeamWx { get; set; }
+    [ObservableProperty] public partial string? BeamSz { get; set; }
+    [ObservableProperty] public partial string? BeamSy { get; set; }
+    [ObservableProperty] public partial string? Beamiz { get; set; }
+    [ObservableProperty] public partial string? Beamiy { get; set; }
+    [ObservableProperty] public partial string? BeamXo { get; set; }
 
     // Геометрия колонны
-    [ObservableProperty] private string? _columnProfile;
-    [ObservableProperty] private string? _columnH;
-    [ObservableProperty] private string? _columnB;
-    [ObservableProperty] private string? _columnS;
-    [ObservableProperty] private string? _columnT;
-    [ObservableProperty] private string? _columnA;
-    [ObservableProperty] private string? _columnP;
-    [ObservableProperty] private string? _columnIz;
-    [ObservableProperty] private string? _columnIy;
-    [ObservableProperty] private string? _columnIx;
-    [ObservableProperty] private string? _columnWz;
-    [ObservableProperty] private string? _columnWy;
-    [ObservableProperty] private string? _columnWx;
-    [ObservableProperty] private string? _columnSz;
-    [ObservableProperty] private string? _columnSy;
-    [ObservableProperty] private string? _columniz;
-    [ObservableProperty] private string? _columniy;
-    [ObservableProperty] private string? _columnXo;
-    [ObservableProperty] private string? _columnYo;
+    [ObservableProperty] public partial string? ColumnProfile { get; set; }
+    [ObservableProperty] public partial string? ColumnH { get; set; }
+    [ObservableProperty] public partial string? ColumnB { get; set; }
+    [ObservableProperty] public partial string? ColumnS { get; set; }
+    [ObservableProperty] public partial string? ColumnT { get; set; }
+    [ObservableProperty] public partial string? ColumnA { get; set; }
+    [ObservableProperty] public partial string? ColumnP { get; set; }
+    [ObservableProperty] public partial string? ColumnIz { get; set; }
+    [ObservableProperty] public partial string? ColumnIy { get; set; }
+    [ObservableProperty] public partial string? ColumnIx { get; set; }
+    [ObservableProperty] public partial string? ColumnWz { get; set; }
+    [ObservableProperty] public partial string? ColumnWy { get; set; }
+    [ObservableProperty] public partial string? ColumnWx { get; set; }
+    [ObservableProperty] public partial string? ColumnSz { get; set; }
+    [ObservableProperty] public partial string? ColumnSy { get; set; }
+    [ObservableProperty] public partial string? Columniz { get; set; }
+    [ObservableProperty] public partial string? Columniy { get; set; }
+    [ObservableProperty] public partial string? ColumnXo { get; set; }
+    [ObservableProperty] public partial string? ColumnYo { get; set; }
 
     // Пластина
-    [ObservableProperty] private string? _plateH;
-    [ObservableProperty] private string? _plateB;
-    [ObservableProperty] private string? _plateT;
+    [ObservableProperty] public partial string? PlateH { get; set; }
+    [ObservableProperty] public partial string? PlateB { get; set; }
+    [ObservableProperty] public partial string? PlateT { get; set; }
 
     // Фланец
-    [ObservableProperty] private string? _flangeH;
-    [ObservableProperty] private string? _flangeB;
-    [ObservableProperty] private string? _flangeT;
-    [ObservableProperty] private string? _flangeLb;
+    [ObservableProperty] public partial string? FlangeH { get; set; }
+    [ObservableProperty] public partial string? FlangeB { get; set; }
+    [ObservableProperty] public partial string? FlangeT { get; set; }
+    [ObservableProperty] public partial string? FlangeLb { get; set; }
 
     // Рёбра жёсткости
-    [ObservableProperty] private string? _stiffTr1;
-    [ObservableProperty] private string? _stiffTr2;
-    [ObservableProperty] private string? _stiffTbp;
-    [ObservableProperty] private string? _stiffTg;
-    [ObservableProperty] private string? _stiffTf;
-    [ObservableProperty] private string? _stiffLh;
-    [ObservableProperty] private string? _stiffHh;
-    [ObservableProperty] private string? _stiffTwp;
+    [ObservableProperty] public partial string? StiffTr1 { get; set; }
+    [ObservableProperty] public partial string? StiffTr2 { get; set; }
+    [ObservableProperty] public partial string? StiffTbp { get; set; }
+    [ObservableProperty] public partial string? StiffTg { get; set; }
+    [ObservableProperty] public partial string? StiffTf { get; set; }
+    [ObservableProperty] public partial string? StiffLh { get; set; }
+    [ObservableProperty] public partial string? StiffHh { get; set; }
+    [ObservableProperty] public partial string? StiffTwp { get; set; }
 
     // Болты
-    [ObservableProperty] private string? _boltCount;
-    [ObservableProperty] private string? _boltRows;
-    [ObservableProperty] private string? _boltDiameter;
-    [ObservableProperty] private string? _boltVersion;
-    [ObservableProperty] private string? _boltCoordZ;
-    [ObservableProperty] private string? _boltE1;
-    [ObservableProperty] private string? _boltP1;
-    [ObservableProperty] private string? _boltP2;
-    [ObservableProperty] private string? _boltP3;
-    [ObservableProperty] private string? _boltP4;
-    [ObservableProperty] private string? _boltP5;
-    [ObservableProperty] private string? _boltP6;
-    [ObservableProperty] private string? _boltP7;
-    [ObservableProperty] private string? _boltP8;
-    [ObservableProperty] private string? _boltP9;
-    [ObservableProperty] private string? _boltP10;
-    [ObservableProperty] private string? _boltD1;
-    [ObservableProperty] private string? _boltD2;
+    [ObservableProperty] public partial string? BoltCount { get; set; }
+    [ObservableProperty] public partial string? BoltRows { get; set; }
+    [ObservableProperty] public partial string? BoltDiameter { get; set; }
+    [ObservableProperty] public partial string? BoltVersion { get; set; }
+    [ObservableProperty] public partial string? BoltCoordZ { get; set; }
+    [ObservableProperty] public partial string? BoltE1 { get; set; }
+    [ObservableProperty] public partial string? BoltP1 { get; set; }
+    [ObservableProperty] public partial string? BoltP2 { get; set; }
+    [ObservableProperty] public partial string? BoltP3 { get; set; }
+    [ObservableProperty] public partial string? BoltP4 { get; set; }
+    [ObservableProperty] public partial string? BoltP5 { get; set; }
+    [ObservableProperty] public partial string? BoltP6 { get; set; }
+    [ObservableProperty] public partial string? BoltP7 { get; set; }
+    [ObservableProperty] public partial string? BoltP8 { get; set; }
+    [ObservableProperty] public partial string? BoltP9 { get; set; }
+    [ObservableProperty] public partial string? BoltP10 { get; set; }
+    [ObservableProperty] public partial string? BoltD1 { get; set; }
+    [ObservableProperty] public partial string? BoltD2 { get; set; }
 
     // Сварка
-    [ObservableProperty] private string? _weldKf1;
-    [ObservableProperty] private string? _weldKf2;
-    [ObservableProperty] private string? _weldKf3;
-    [ObservableProperty] private string? _weldKf4;
-    [ObservableProperty] private string? _weldKf5;
-    [ObservableProperty] private string? _weldKf6;
-    [ObservableProperty] private string? _weldKf7;
-    [ObservableProperty] private string? _weldKf8;
-    [ObservableProperty] private string? _weldKf9;
-    [ObservableProperty] private string? _weldKf10;
+    [ObservableProperty] public partial string? WeldKf1 { get; set; }
+    [ObservableProperty] public partial string? WeldKf2 { get; set; }
+    [ObservableProperty] public partial string? WeldKf3 { get; set; }
+    [ObservableProperty] public partial string? WeldKf4 { get; set; }
+    [ObservableProperty] public partial string? WeldKf5 { get; set; }
+    [ObservableProperty] public partial string? WeldKf6 { get; set; }
+    [ObservableProperty] public partial string? WeldKf7 { get; set; }
+    [ObservableProperty] public partial string? WeldKf8 { get; set; }
+    [ObservableProperty] public partial string? WeldKf9 { get; set; }
+    [ObservableProperty] public partial string? WeldKf10 { get; set; }
 
     // --- Init ---
 

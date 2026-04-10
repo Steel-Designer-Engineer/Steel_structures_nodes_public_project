@@ -33,7 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\steel_structures_nodes.Domain\steel_structures_nodes.Domain.csproj" />
-    <ProjectReference Include="..\steel_structures_nodes.Data\steel_structures_nodes.Data.csproj" />
     <ProjectReference Include="..\steel_structures_nodes.Calculate\steel_structures_nodes.Calculate.csproj" />
   </ItemGroup>
 

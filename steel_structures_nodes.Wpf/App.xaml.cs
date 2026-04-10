@@ -4,8 +4,10 @@ using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using steel_structures_nodes.Data.Contracts;
 using steel_structures_nodes.Calculate.Services;
-using steel_structures_nodes.Data.DependencyInjection;
+using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Domain.Fallback;
 using steel_structures_nodes.Wpf.Services;
 using steel_structures_nodes.Wpf.ViewModels;
 using steel_structures_nodes.Wpf.Views;
@@ -115,12 +117,19 @@ namespace steel_structures_nodes.Wpf
                 configure.SetMinimumLevel(LogLevel.Information);
             });
 
-            // Register Data Layer with MongoDB
-            // MongoDB connection is configured inside Data layer
-            // WPF app only works with repositories
-            Console.WriteLine("Registering Data Layer with MongoDB...");
-            services.AddDataLayer(Configuration);
-            Console.WriteLine("✓ Data Layer registered with repositories");
+            var unavailableMessage = "Слой данных недоступен: проект steel_structures_nodes.Data отсутствует в решении.";
+            Console.WriteLine(unavailableMessage);
+
+            var dataAccessFailureNotifier = new DataAccessFailureNotifier();
+            dataAccessFailureNotifier.Report("App.ConfigureServices", unavailableMessage);
+            var interactionRepository = new UnavailableInteractionTableRepository(unavailableMessage);
+
+            services.AddSingleton<IDataAccessFailureNotifier>(dataAccessFailureNotifier);
+            services.AddSingleton<IInteractionTableRepository>(interactionRepository);
+            services.AddSingleton<IInteractionTableLookupRepository>(interactionRepository);
+            services.AddSingleton<IInteractionTableReadRepository>(interactionRepository);
+            services.AddSingleton<ICalculationResultRepository, UnavailableCalculationResultRepository>();
+            services.AddSingleton<INodeImageRepository, UnavailableNodeImageRepository>();
 
             // Register Application Services
 
