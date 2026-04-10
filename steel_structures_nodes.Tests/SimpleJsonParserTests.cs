@@ -1,8 +1,8 @@
 using System;
-using Steel_structures_nodes_public_project.Wpf.Services;
+using steel_structures_nodes.Wpf.Services;
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     public class SimpleJsonParserTests
     {

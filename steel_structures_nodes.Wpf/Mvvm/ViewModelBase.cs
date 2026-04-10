@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Steel_structures_nodes_public_project.Wpf.Mvvm
+namespace steel_structures_nodes.Wpf.Mvvm
 {
     /// <summary>
     /// Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ ViewModel СЃ СЂРµР°Р»РёР·Р°С†РёРµР№ <see cref="INotifyPropertyChanged"/>.

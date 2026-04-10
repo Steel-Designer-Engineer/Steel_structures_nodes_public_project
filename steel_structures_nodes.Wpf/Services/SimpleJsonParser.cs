@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Steel_structures_nodes_public_project.Wpf.Models;
+using steel_structures_nodes.Wpf.Models;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// Минимальный JSON-парсер для чтения списков узлов и таблиц взаимодействия.

@@ -1,4 +1,4 @@
-<Application x:Class="Steel_structures_nodes_public_project.Wpf.App"
+<Application x:Class="steel_structures_nodes.Wpf.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>

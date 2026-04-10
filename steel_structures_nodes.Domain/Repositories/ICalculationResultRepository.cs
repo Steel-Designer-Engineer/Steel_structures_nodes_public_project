@@ -1,6 +1,6 @@
-using Steel_structures_nodes_public_project.Domain.Entities;
+using steel_structures_nodes.Domain.Entities;
 
-namespace Steel_structures_nodes_public_project.Domain.Repositories;
+namespace steel_structures_nodes.Domain.Repositories;
 
 /// <summary>
 /// Репозиторий для сохранения и получения результатов расчёта (коллекция Result).

@@ -5,12 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Models.RSN;
-using Steel_structures_nodes_public_project.Calculate.Models.RSU;
-using Steel_structures_nodes_public_project.Calculate.Services;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Models.RSN;
+using steel_structures_nodes.Calculate.Models.RSU;
+using steel_structures_nodes.Calculate.Services;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// Реализация <see cref="IExcelReader"/> на основе библиотеки EPPlus для чтения Excel-файлов.

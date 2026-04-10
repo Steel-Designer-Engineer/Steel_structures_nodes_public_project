@@ -3,16 +3,16 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OfficeOpenXml;
-using Steel_structures_nodes_public_project.Calculate.Calculate;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Models.RSU;
-using Steel_structures_nodes_public_project.Calculate.Models.RSN;
-using Steel_structures_nodes_public_project.Calculate.Services;
-using Steel_structures_nodes_public_project.Domain.Entities;
-using Steel_structures_nodes_public_project.Domain.Repositories;
+using steel_structures_nodes.Calculate.Calculate;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Models.RSU;
+using steel_structures_nodes.Calculate.Models.RSN;
+using steel_structures_nodes.Calculate.Services;
+using steel_structures_nodes.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using steel_structures_nodes.Domain.Contracts;
 
-namespace Steel_structures_nodes_public_project.Maui.ViewModels;
+namespace steel_structures_nodes.Maui.ViewModels;
 
 public partial class ExcelImportViewModel : ObservableObject
 {
@@ -414,7 +414,7 @@ public partial class ExcelImportViewModel : ObservableObject
                 return;
             }
 
-            ExcelPackage.License.SetNonCommercialPersonal("Steel_structures_nodes_public_project");
+            ExcelPackage.License.SetNonCommercialPersonal("steel_structures_nodes");
 
             // На Android файл может быть доступен только через поток
             using var stream = await result.OpenReadAsync();
@@ -652,7 +652,7 @@ private static double ParseCoeff(string s)
             var dir = new DirectoryInfo(baseDir);
             for (int i = 0; i < 10 && dir != null; i++)
             {
-                var projectDir = Path.Combine(dir.FullName, "Steel_structures_nodes_public_project.Calculate");
+                var projectDir = Path.Combine(dir.FullName, "steel_structures_nodes.Calculate");
                 if (Directory.Exists(projectDir))
                 {
                     var candidate = Path.Combine(projectDir, "ResultCalculate");

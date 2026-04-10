@@ -1,7 +1,6 @@
 using System.Globalization;
-using Microsoft.Maui.Graphics;
 
-namespace Steel_structures_nodes_public_project.Maui.Controls;
+namespace steel_structures_nodes.Maui.Controls;
 
 /// <summary>
 /// Элемент данных для одной строки графика несущей способности.
@@ -13,7 +12,9 @@ public record CapacityBarItem(
     double Value,
     Color BarColor,
     double? ActualValue = null,
-    Color? ActualColor = null);
+    Color? ActualColor = null,
+    double? UserValue = null,
+    Color? UserColor = null);
 
 /// <summary>
 /// Рисует горизонтальную гистограмму сравнения: табличные vs расчётные.
@@ -29,7 +30,8 @@ public class CapacityChartDrawable : IDrawable
     private static readonly Color OverRowBg = Color.FromArgb("#FDE7E9");
 
     private List<CapacityBarItem> _items = [];
-    private bool _hasActual;
+    private bool _hasCompared;
+    private bool _hasUser;
 
     /// <summary>
     /// Задаёт набор данных для отображения.
@@ -37,7 +39,8 @@ public class CapacityChartDrawable : IDrawable
     public void SetData(IEnumerable<CapacityBarItem> items)
     {
         _items = items.ToList();
-        _hasActual = _items.Any(i => i.ActualValue.HasValue);
+        _hasCompared = _items.Any(i => i.ActualValue.HasValue || i.UserValue.HasValue);
+        _hasUser = _items.Any(i => i.UserValue.HasValue);
     }
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -47,9 +50,9 @@ public class CapacityChartDrawable : IDrawable
         const float labelWidth = 100f;
         const float valueWidth = 70f;
         const float ratioWidth = 55f;
-        const float rowHeight = 32f;
+        const float rowHeight = 46f;
         const float singleBarH = 14f;
-        const float pairedBarH = 12f;
+        const float pairedBarH = 10f;
         const float barGap = 2f;
         const float topPadding = 4f;
         const float legendHeight = 26f;
@@ -60,25 +63,27 @@ public class CapacityChartDrawable : IDrawable
             double m = Math.Abs(i.Value);
             if (i.ActualValue.HasValue)
                 m = Math.Max(m, Math.Abs(i.ActualValue.Value));
+            if (i.UserValue.HasValue)
+                m = Math.Max(m, Math.Abs(i.UserValue.Value));
             return m;
         });
         if (maxValue == 0) maxValue = 1;
 
-        float rightReserve = _hasActual ? valueWidth + ratioWidth : valueWidth;
+        float rightReserve = _hasCompared ? valueWidth + ratioWidth : valueWidth;
         float barAreaWidth = dirtyRect.Width - labelWidth - rightReserve - 12f;
         if (barAreaWidth < 30) barAreaWidth = 30;
 
         float y = topPadding;
 
         // Легенда
-        if (_hasActual)
+        if (_hasCompared)
         {
             DrawLegend(canvas, labelWidth, y, dirtyRect.Width - labelWidth);
             y += legendHeight;
             // Подсказка
             canvas.FontSize = 9;
             canvas.FontColor = Colors.Gray;
-            canvas.DrawString("Использование = Расчётное / Табличное × 100%",
+            canvas.DrawString("Использование = max(расчётное, пользовательское) / табличное × 100%",
                 labelWidth, y, dirtyRect.Width - labelWidth, hintHeight,
                 HorizontalAlignment.Left, VerticalAlignment.Center);
             y += hintHeight;
@@ -89,10 +94,11 @@ public class CapacityChartDrawable : IDrawable
         {
             double tv = Math.Abs(item.Value);
             double cv = item.ActualValue.HasValue ? Math.Abs(item.ActualValue.Value) : 0;
-            bool isOver = _hasActual && tv > 0 && cv > tv;
+            double uv = item.UserValue.HasValue ? Math.Abs(item.UserValue.Value) : 0;
+            bool isOver = _hasCompared && tv > 0 && Math.Max(cv, uv) > tv;
 
             // Фон строки: чередование + подсветка превышения
-            if (_hasActual && isOver)
+            if (_hasCompared && isOver)
             {
                 canvas.SetFillPaint(new SolidPaint(OverRowBg),
                     new RectF(0, y, dirtyRect.Width, rowHeight));
@@ -111,11 +117,12 @@ public class CapacityChartDrawable : IDrawable
             canvas.DrawString(item.Label, 4, y, labelWidth - 8, rowHeight,
                 HorizontalAlignment.Left, VerticalAlignment.Center);
 
-            if (_hasActual)
+            if (_hasCompared)
             {
-                // === Парный режим: табличное + расчётное ===
+                // === Режим сравнения: табличное + расчётное + пользовательское ===
                 float barY1 = y + 3;
                 float barY2 = barY1 + pairedBarH + barGap;
+                float barY3 = barY2 + pairedBarH + barGap;
 
                 // Табличная полоска
                 float ratioTable = (float)(tv / maxValue);
@@ -151,14 +158,30 @@ public class CapacityChartDrawable : IDrawable
                 canvas.DrawString(calcText, valX, barY2, valueWidth, pairedBarH,
                     HorizontalAlignment.Right, VerticalAlignment.Center);
 
+                // Пользовательская полоска
+                float ratioUser = (float)(uv / maxValue);
+                float barWUser = ratioUser * barAreaWidth;
+                if (barWUser < 2 && uv != 0) barWUser = 2;
+
+                var userColor = item.UserColor ?? Color.FromArgb("#107C10");
+
+                canvas.SetFillPaint(new SolidPaint(userColor),
+                    new RectF(labelWidth, barY3, barWUser, pairedBarH));
+                canvas.FillRoundedRectangle(labelWidth, barY3, barWUser, pairedBarH, 2);
+
+                canvas.FontColor = userColor;
+                string userText = uv == 0 ? "—" : uv.ToString("0.###", CultureInfo.InvariantCulture);
+                canvas.DrawString(userText, valX, barY3, valueWidth, pairedBarH,
+                    HorizontalAlignment.Right, VerticalAlignment.Center);
+
                 // Процент использования
                 string ratioText;
-                if (tv == 0 && cv == 0)
+                if (tv == 0 && cv == 0 && uv == 0)
                     ratioText = "—";
                 else if (tv == 0)
                     ratioText = "∞";
                 else
-                    ratioText = (cv / tv * 100).ToString("0.#", CultureInfo.InvariantCulture) + "%";
+                    ratioText = (Math.Max(cv, uv) / tv * 100).ToString("0.#", CultureInfo.InvariantCulture) + "%";
 
                 float ratioX = valX + valueWidth + 2;
                 canvas.FontSize = 13;
@@ -216,8 +239,20 @@ public class CapacityChartDrawable : IDrawable
         canvas.DrawString("Расчётные", x2 + boxW + 4, y, 70, 24,
             HorizontalAlignment.Left, VerticalAlignment.Center);
 
-        // Превышение
         float x3 = x2 + boxW + 4 + 70 + gap;
+        if (_hasUser)
+        {
+            canvas.SetFillPaint(new SolidPaint(Color.FromArgb("#107C10")),
+                new RectF(x3, y + 6, boxW, boxH));
+            canvas.FillRoundedRectangle(x3, y + 6, boxW, boxH, 2);
+            canvas.FontColor = Colors.DimGray;
+            canvas.DrawString("Пользовательские", x3 + boxW + 4, y, 110, 24,
+                HorizontalAlignment.Left, VerticalAlignment.Center);
+
+            x3 += boxW + 4 + 110 + gap;
+        }
+
+        // Превышение
         canvas.SetFillPaint(new SolidPaint(CalcOverColor),
             new RectF(x3, y + 6, boxW, boxH));
         canvas.FillRoundedRectangle(x3, y + 6, boxW, boxH, 2);
@@ -233,8 +268,8 @@ public class CapacityChartDrawable : IDrawable
     {
         get
         {
-            float legend = _hasActual ? 26f + 16f : 0f;
-            return _items.Count * 32f + legend + 8f;
+            float legend = _hasCompared ? 26f + 16f : 0f;
+            return _items.Count * 46f + legend + 8f;
         }
     }
 }

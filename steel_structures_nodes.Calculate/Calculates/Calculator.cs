@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Services;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Services;
 
-namespace Steel_structures_nodes_public_project.Calculate {
+namespace steel_structures_nodes.Calculate.Calculate {
     /// <summary>
     /// Калькулятор РС1: вычисление максимальных усилий и построение таблицы анализа
     /// с учётом данных несущей способности из альбома.
@@ -33,7 +33,7 @@ namespace Steel_structures_nodes_public_project.Calculate {
                 // Prefer WPF project assets
                 var dir = new DirectoryInfo(baseDir);
                 for (int i = 0; i < 10 && dir != null; i++) {
-                    var candidate = Path.Combine(dir.FullName, "Steel_structures_nodes_public_project.Wpf", "Assets", "album_capacities.json");
+                    var candidate = Path.Combine(dir.FullName, "steel_structures_nodes.Wpf", "Assets", "album_capacities.json");
                     if (File.Exists(candidate))
                         return new AlbumCapacityJsonProvider(candidate);
 

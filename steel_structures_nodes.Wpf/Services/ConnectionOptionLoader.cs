@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Steel_structures_nodes_public_project.Wpf.Models;
+using steel_structures_nodes.Wpf.Models;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// Р—Р°РіСЂСѓР·С‡РёРє РІР°СЂРёР°РЅС‚РѕРІ СѓР·Р»РѕРІС‹С… СЃРѕРµРґРёРЅРµРЅРёР№ РёР· JSON-С„Р°Р№Р»РѕРІ СЂРµСЃСѓСЂСЃРѕРІ.

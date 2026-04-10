@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using OfficeOpenXml;
 
-namespace Steel_structures_nodes_public_project.Calculate
+namespace steel_structures_nodes.Calculate.Calculate
 {
     /// <summary>
     /// Форматирование данных расчётного листа: замена запятых на точки

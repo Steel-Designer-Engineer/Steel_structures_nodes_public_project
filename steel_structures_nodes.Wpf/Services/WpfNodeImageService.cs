@@ -6,19 +6,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Steel_structures_nodes_public_project.Domain.Repositories;
+using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Domain.Services.NodeImages;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services;
+namespace steel_structures_nodes.Wpf.Services;
 
 /// <summary>
 /// Загружает изображения узлов из MongoDB (коллекция NodeNotesImagesDB).
 /// Аналог NodeImageService из MAUI, но возвращает WPF-совместимый ImageSource.
 /// </summary>
-public sealed class WpfNodeImageService
+public sealed class WpfNodeImageService : IWpfNodeImageService
 {
-    private static readonly string[] Extensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif"];
-    private const int MaxNumberedVariants = 20;
-
     private readonly INodeImageRepository _repository;
 
     public WpfNodeImageService(INodeImageRepository repository)
@@ -40,7 +38,7 @@ public sealed class WpfNodeImageService
 
         try
         {
-            var filenames = BuildAllPossibleFilenames(nodeCode);
+            var filenames = NodeImageFilenameBuilder.BuildAllPossibleFilenames(nodeCode);
 
             // Индекс для сортировки по порядку из сгенерированного списка
             var order = filenames
@@ -80,64 +78,5 @@ public sealed class WpfNodeImageService
         }
 
         return result;
-    }
-
-    // ─── Вспомогательные методы (аналогичны MAUI NodeImageService) ──────────
-
-    private static List<string> BuildAllPossibleFilenames(string nodeCode)
-    {
-        var candidates = BuildCodeCandidates(nodeCode);
-        var list = new List<string>();
-
-        foreach (var c in candidates)
-        {
-            foreach (var ext in Extensions)
-                list.Add(c + ext);
-
-            for (int i = 1; i <= MaxNumberedVariants; i++)
-                foreach (var ext in Extensions)
-                    list.Add($"{c}_{i}{ext}");
-        }
-
-        return list;
-    }
-
-    private static string[] BuildCodeCandidates(string nodeCode)
-    {
-        var c0 = (nodeCode ?? string.Empty).Trim();
-        if (c0.Length == 0)
-            return [];
-
-        var list = new List<string>();
-
-        void Add(string s)
-        {
-            s = s.Trim();
-            if (s.Length > 0 && !list.Contains(s, StringComparer.OrdinalIgnoreCase))
-                list.Add(s);
-        }
-
-        Add(c0);
-        Add(ExtractPrefix(c0));
-
-        var dash = c0.IndexOf('-');
-        if (dash > 0) Add(c0[..dash]);
-
-        foreach (var s in list.ToArray())
-        {
-            if (s.EndsWith('_'))
-                Add(s.TrimEnd('_'));
-            else
-                Add(s + "_");
-        }
-
-        return [.. list];
-    }
-
-    private static string ExtractPrefix(string code)
-    {
-        var t = code.Trim();
-        var i = t.IndexOf('_');
-        return i > 0 ? t[..i] : t;
     }
 }

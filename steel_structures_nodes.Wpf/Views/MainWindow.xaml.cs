@@ -3,12 +3,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using Steel_structures_nodes_public_project.Wpf.ViewModels;
+using steel_structures_nodes.Wpf.ViewModels;
 
-namespace Steel_structures_nodes_public_project.Wpf.Views
+namespace steel_structures_nodes.Wpf.Views
 {
     /// <summary>
-    /// Главное окно приложения — расчёт РС1.
+    /// Главное окно приложения
     /// </summary>
     public partial class MainWindow : Window
     {

@@ -1,7 +1,7 @@
 using System.Globalization;
-using Steel_structures_nodes_public_project.Wpf.Mvvm;
+using steel_structures_nodes.Wpf.Mvvm;
 
-namespace Steel_structures_nodes_public_project.Wpf.ViewModels
+namespace steel_structures_nodes.Wpf.ViewModels
 {
     /// <summary>
     /// ViewModel строки таблицы IDEA StatiCA — усилия в нотации IDEA StatiCA.

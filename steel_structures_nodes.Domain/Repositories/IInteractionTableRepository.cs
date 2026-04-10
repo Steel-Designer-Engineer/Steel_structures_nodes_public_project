@@ -1,6 +1,6 @@
-using Steel_structures_nodes_public_project.Domain.Entities;
+using steel_structures_nodes.Domain.Entities;
 
-namespace Steel_structures_nodes_public_project.Domain.Repositories;
+namespace steel_structures_nodes.Domain.Repositories;
 
 /// <summary>
 /// Репозиторий для работы с таблицами взаимодействия
@@ -17,8 +17,4 @@ public interface IInteractionTableRepository
     Task<IReadOnlyList<string>> GetDistinctProfileBeamsByNameAndColumnAsync(string name, string columnProfile, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetDistinctProfileColumnsByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InteractionTable>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task AddAsync(InteractionTable interactionTable, CancellationToken cancellationToken = default);
-    Task AddRangeAsync(IEnumerable<InteractionTable> interactionTables, CancellationToken cancellationToken = default);
-    Task UpdateAsync(InteractionTable interactionTable, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

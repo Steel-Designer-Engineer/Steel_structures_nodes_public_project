@@ -1,8 +1,8 @@
 using System.Globalization;
-using Steel_structures_nodes_public_project.Calculate.Models;
+using steel_structures_nodes.Calculate.Models;
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     public class ForceRowTests
     {

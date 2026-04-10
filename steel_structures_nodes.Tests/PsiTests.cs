@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Steel_structures_nodes_public_project.Calculate.Calculate;
-using Steel_structures_nodes_public_project.Calculate.Models;
+using steel_structures_nodes.Calculate.Calculate;
+using steel_structures_nodes.Calculate.Models;
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// РўРµСЃС‚С‹ РїРµСЂРµРјРµРЅРЅРѕР№ Psi (П€) вЂ” РєРѕСЌС„С„РёС†РёРµРЅС‚ РёР· Р°Р»СЊР±РѕРјР° РЅРµСЃСѓС‰РµР№ СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё

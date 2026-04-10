@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Steel_structures_nodes_public_project.Data.DependencyInjection;
-using Steel_structures_nodes_public_project.Domain.Repositories;
-using Steel_structures_nodes_public_project.Maui.Services;
-using Steel_structures_nodes_public_project.Maui.ViewModels;
+using steel_structures_nodes.Data.DependencyInjection;
+using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Maui.Services;
+using steel_structures_nodes.Maui.ViewModels;
 
-namespace Steel_structures_nodes_public_project.Maui;
+namespace steel_structures_nodes.Maui;
 
 public static class MauiProgram
 {
@@ -29,32 +29,30 @@ public static class MauiProgram
         builder.Configuration.AddConfiguration(config);
 
         // Register Data layer (MongoDB repositories)
+        var dataAccessFailureNotifier = new DataAccessFailureNotifier();
         try
         {
-            builder.Services.AddDataLayer(builder.Configuration);
+            builder.Services.AddDataLayer(builder.Configuration, dataAccessFailureNotifier);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"DataLayer registration failed: {ex.Message}");
-            // Fallback: заглушки, чтобы приложение запустилось в offline-режиме
-            builder.Services.AddSingleton<IInteractionTableRepository>(
-                new OfflineInteractionTableRepository(ex.Message));
-            builder.Services.AddSingleton<INodeImageRepository>(
-                new OfflineNodeImageRepository());
+            dataAccessFailureNotifier.Report("MauiProgram.AddDataLayer", "Не удалось инициализировать слой данных.", ex);
+            throw;
         }
 
-        // Сервис загрузки изображений из MongoDB
-        builder.Services.AddTransient<NodeImageService>(sp =>
-            new NodeImageService(sp.GetRequiredService<INodeImageRepository>()));
+        // Redis для кэширования изображений
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+        builder.Services.AddSingleton(new RedisImageCacheService(redisConnectionString));
+
+        // Сервис загрузки изображений: in-memory → Redis → MongoDB
+        builder.Services.AddSingleton<INodeImageService>(sp =>
+            new NodeImageService(
+                sp.GetRequiredService<INodeImageRepository>(),
+                sp.GetRequiredService<RedisImageCacheService>()));
 
         // Register ViewModels
-        builder.Services.AddTransient<MainViewModel>(sp =>
-        {
-            var repo        = sp.GetRequiredService<IInteractionTableRepository>();
-            var excelImport = sp.GetRequiredService<ExcelImportViewModel>();
-            var imgService  = sp.GetRequiredService<NodeImageService>();
-            return new MainViewModel(repo, excelImport, imgService);
-        });
+        builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<ExcelImportViewModel>(sp =>
         {

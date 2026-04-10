@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using OfficeOpenXml;
 
-namespace Steel_structures_nodes_public_project.Calculate
+namespace steel_structures_nodes.Calculate.Calculate
 {
     /// <summary>
     /// Импорт и вставка данных РСУ в расчётный лист Excel.

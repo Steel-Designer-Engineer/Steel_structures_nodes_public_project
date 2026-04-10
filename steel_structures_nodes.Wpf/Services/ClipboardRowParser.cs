@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Steel_structures_nodes_public_project.Calculate.Models.RSN;
+using steel_structures_nodes.Calculate.Models.RSN;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// РџР°СЂСЃРµСЂ СЃС‚СЂРѕРє Р РЎРЈ/Р РЎРќ РёР· С‚РµРєСЃС‚Р° Р±СѓС„РµСЂР° РѕР±РјРµРЅР° (TAB-СЂР°Р·РґРµР»С‘РЅРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ).

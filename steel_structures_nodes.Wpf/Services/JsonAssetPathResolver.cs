@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// РЈС‚РёР»РёС‚Р° РґР»СЏ РїРѕРёСЃРєР° JSON-С„Р°Р№Р»РѕРІ СЂРµСЃСѓСЂСЃРѕРІ WPF-РїСЂРѕРµРєС‚Р° РІ РєР°С‚Р°Р»РѕРіР°С… СЃР±РѕСЂРєРё Рё СЂРµРїРѕР·РёС‚РѕСЂРёСЏ.

@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Maui.WinUI;
+namespace steel_structures_nodes.Maui.WinUI;
 
 public partial class App : MauiWinUIApplication
 {

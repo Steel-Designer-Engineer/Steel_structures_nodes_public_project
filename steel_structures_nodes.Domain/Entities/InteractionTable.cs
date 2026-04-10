@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Domain.Entities;
+namespace steel_structures_nodes.Domain.Entities;
 
 /// <summary>
 /// Таблица взаимодействия узлов
@@ -10,6 +10,8 @@ public class InteractionTable
     public string ConnectionCode { get; set; } = string.Empty;
     public double Variable { get; set; }
     public string TableBrand { get; set; } = string.Empty;
+    /// <summary>Тип узла(Rigid Joint - жесткое соединение, Hinged Joint - шарнирное соединение)</summary>
+    public string TypeNode { get; set; } = string.Empty;
 
     /// <summary>Пояснения и общие положения из базы данных узла.</summary>
     public string Explanations { get; set; } = string.Empty;
@@ -181,16 +183,16 @@ public class BoltCoordinatesZ
 
 public class WeldsData
 {
-    public double kf1 { get; set; }
-    public double kf2 { get; set; }
-    public double kf3 { get; set; }
-    public double kf4 { get; set; }
-    public double kf5 { get; set; }
-    public double kf6 { get; set; }
-    public double kf7 { get; set; }
-    public double kf8 { get; set; }
-    public double kf9 { get; set; }
-    public double kf10 { get; set; }
+    public string kf1 { get; set; } = string.Empty;
+    public string kf2 { get; set; } = string.Empty;
+    public string kf3 { get; set; } = string.Empty;
+    public string kf4 { get; set; } = string.Empty;
+    public string kf5 { get; set; } = string.Empty;
+    public string kf6 { get; set; } = string.Empty;
+    public string kf7 { get; set; } = string.Empty;
+    public string kf8 { get; set; } = string.Empty;
+    public string kf9 { get; set; } = string.Empty;
+    public string kf10 { get; set; } = string.Empty;
 }
 
 public class InternalForcesData

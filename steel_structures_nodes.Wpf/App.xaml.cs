@@ -4,12 +4,13 @@ using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Steel_structures_nodes_public_project.Data.DependencyInjection;
-using Steel_structures_nodes_public_project.Wpf.Services;
-using Steel_structures_nodes_public_project.Wpf.ViewModels;
-using Steel_structures_nodes_public_project.Wpf.Views;
+using steel_structures_nodes.Calculate.Services;
+using steel_structures_nodes.Data.DependencyInjection;
+using steel_structures_nodes.Wpf.Services;
+using steel_structures_nodes.Wpf.ViewModels;
+using steel_structures_nodes.Wpf.Views;
 
-namespace Steel_structures_nodes_public_project.Wpf
+namespace steel_structures_nodes.Wpf
 {
     /// <summary>
     /// Главный класс WPF-приложения steel_structures_nodes.
@@ -123,7 +124,11 @@ namespace Steel_structures_nodes_public_project.Wpf
             // Register Application Services
 
             // Register Application Services
-            services.AddTransient<WpfNodeImageService>();
+            services.AddTransient<IExcelReader, EpplusExcelReader>();
+            services.AddTransient<IExcelImportDialogService, ExcelImportDialogService>();
+            services.AddTransient<IStandardNodeDataMapper, StandardNodeDataMapper>();
+            services.AddTransient<IInteractionTableService, InteractionTableService>();
+            services.AddTransient<IWpfNodeImageService, WpfNodeImageService>();
 
             // Register ViewModels and Windows
             services.AddTransient<ViewModel>();

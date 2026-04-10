@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace Steel_structures_nodes_public_project.Wpf.Mvvm
+namespace steel_structures_nodes.Wpf.Mvvm
 {
     /// <summary>
     /// Р РµР°Р»РёР·Р°С†РёСЏ <see cref="ICommand"/> РЅР° РѕСЃРЅРѕРІРµ РґРµР»РµРіР°С‚РѕРІ РґР»СЏ РїСЂРёРІСЏР·РєРё РєРѕРјР°РЅРґ РІ MVVM.

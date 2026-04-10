@@ -12,6 +12,7 @@
     <!-- Диаграммы и статусы -->
     <SolidColorBrush x:Key="ChartTableBrush"      Color="#4A90D9"></SolidColorBrush>
     <SolidColorBrush x:Key="ChartCalcBrush"       Color="#E67E22"></SolidColorBrush>
+    <SolidColorBrush x:Key="ChartUserBrush"       Color="#107C10"></SolidColorBrush>
     <SolidColorBrush x:Key="OverLimitBrush"       Color="#E74C3C"></SolidColorBrush>
     <SolidColorBrush x:Key="OkBrush"              Color="#27AE60"></SolidColorBrush>
 

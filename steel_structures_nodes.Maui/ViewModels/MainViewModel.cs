@@ -2,12 +2,13 @@ using System.Collections.ObjectModel;
 using System.Net.Sockets;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Steel_structures_nodes_public_project.Domain.Entities;
-using Steel_structures_nodes_public_project.Domain.Repositories;
-using Steel_structures_nodes_public_project.Maui.Controls;
-using Steel_structures_nodes_public_project.Maui.Services;
+using steel_structures_nodes.Data.Contracts;
+using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Domain.Entities;
+using steel_structures_nodes.Maui.Controls;
+using steel_structures_nodes.Maui.Services;
 
-namespace Steel_structures_nodes_public_project.Maui.ViewModels;
+namespace steel_structures_nodes.Maui.ViewModels;
 
 /// <summary>
 /// Сводка фактических усилий из расчёта РС1 для отображения на графике.
@@ -19,26 +20,42 @@ public record Rs1SummaryForces(
 
 public partial class MainViewModel : ObservableObject
 {
-    private readonly IInteractionTableRepository _repository;
-    private readonly NodeImageService _nodeImageService;
+    private readonly IInteractionTableLookupRepository _interactionTableLookupRepository;
+    private readonly IInteractionTableReadRepository _interactionTableReadRepository;
+    private readonly IDataAccessFailureNotifier _dataAccessFailureNotifier;
+    private readonly INodeImageService _nodeImageService;
     private bool _suppressCascade;
 
     public ExcelImportViewModel ExcelImport { get; }
 
     public MainViewModel(
-        IInteractionTableRepository repository,
+        IInteractionTableLookupRepository interactionTableLookupRepository,
+        IInteractionTableReadRepository interactionTableReadRepository,
+        IDataAccessFailureNotifier dataAccessFailureNotifier,
         ExcelImportViewModel excelImport,
-        NodeImageService nodeImageService)
+        INodeImageService nodeImageService)
     {
-        _repository       = repository;
+        _interactionTableLookupRepository = interactionTableLookupRepository;
+        _interactionTableReadRepository = interactionTableReadRepository;
+        _dataAccessFailureNotifier = dataAccessFailureNotifier ?? throw new ArgumentNullException(nameof(dataAccessFailureNotifier));
         _nodeImageService = nodeImageService;
-        ExcelImport       = excelImport;
+        ExcelImport = excelImport;
+        _dataAccessFailureNotifier.FailureOccurred += OnDataAccessFailure;
         // Подписка на результаты расчёта РС1
         excelImport.Rs1ResultsUpdated += actual => SetActualForces(actual);
         ConnectionNames = new ObservableCollection<string>();
         ProfileColumns  = new ObservableCollection<string>();
         ProfileBeams    = new ObservableCollection<string>();
         ConnectionCodes = new ObservableCollection<string>();
+
+        if (_dataAccessFailureNotifier.LastFailure is not null)
+            Status = _dataAccessFailureNotifier.LastFailure.Message;
+    }
+
+    private void OnDataAccessFailure(object? sender, DataAccessFailureEventArgs e)
+    {
+        Status = e.Message;
+        System.Diagnostics.Debug.WriteLine($"Data access failure [{e.Source}]: {e.Exception}");
     }
 
     // --- Collections ---
@@ -51,30 +68,30 @@ public partial class MainViewModel : ObservableObject
     // --- Selected values ---
 
     [ObservableProperty]
-    public partial string? SelectedName { get; set; }
+    private string? _selectedName;
 
     [ObservableProperty]
-    public partial string? SelectedProfileColumn { get; set; }
+    private string? _selectedProfileColumn;
 
     [ObservableProperty]
-    public partial string? SelectedProfileBeam { get; set; }
+    private string? _selectedProfileBeam;
 
     [ObservableProperty]
-    public partial string? SelectedConnectionCode { get; set; }
+    private string? _selectedConnectionCode;
 
     // --- Node image ---
 
     private List<ImageSource> _nodeImages = [];
     private int _nodeImageIndex;
 
-    [ObservableProperty] public partial ImageSource? SelectedNodeImage { get; set; }
-    [ObservableProperty] public partial string? SelectedNodeDescription { get; set; }
-    [ObservableProperty] public partial string? ImageIndexText { get; set; }
-    [ObservableProperty] public partial bool HasMultipleImages { get; set; }
+    [ObservableProperty] private ImageSource? _selectedNodeImage;
+    [ObservableProperty] private string? _selectedNodeDescription;
+    [ObservableProperty] private string? _imageIndexText;
+    [ObservableProperty] private bool _hasMultipleImages;
 
     /// <summary>Пояснения из поля Explanations документа базы данных.</summary>
-    [ObservableProperty] public partial string? NodeExplanation { get; set; }
-    [ObservableProperty] public partial bool HasExplanation { get; set; }
+    [ObservableProperty] private string? _nodeExplanation;
+    [ObservableProperty] private bool _hasExplanation;
 
     // --- Node data ---
 
@@ -86,132 +103,144 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     public event Action? ChartUpdated;
 
-    [ObservableProperty] public partial string? TableBrand { get; set; }
-    [ObservableProperty] public partial string? Status { get; set; }
-    [ObservableProperty] public partial bool IsBusy { get; set; }
-    [ObservableProperty] public partial bool HasData { get; set; }
+    [ObservableProperty] private string? _typeNode;
+    [ObservableProperty] private string? _tableBrand;
+    [ObservableProperty] private string? _status;
+    [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] private bool _hasData;
 
     // Несущая способность
-    [ObservableProperty] public partial string? NtValue { get; set; }
-    [ObservableProperty] public partial string? NcValue { get; set; }
-    [ObservableProperty] public partial string? NValue { get; set; }
-    [ObservableProperty] public partial string? QyValue { get; set; }
-    [ObservableProperty] public partial string? QzValue { get; set; }
-    [ObservableProperty] public partial string? MxValue { get; set; }
-    [ObservableProperty] public partial string? MyValue { get; set; }
-    [ObservableProperty] public partial string? MzValue { get; set; }
-    [ObservableProperty] public partial string? MwValue { get; set; }
-    [ObservableProperty] public partial string? MnegValue { get; set; }
+    [ObservableProperty] private string? _ntValue;
+    [ObservableProperty] private string? _ncValue;
+    [ObservableProperty] private string? _nValue;
+    [ObservableProperty] private string? _qyValue;
+    [ObservableProperty] private string? _qzValue;
+    [ObservableProperty] private string? _mxValue;
+    [ObservableProperty] private string? _myValue;
+    [ObservableProperty] private string? _mzValue;
+    [ObservableProperty] private string? _mwValue;
+    [ObservableProperty] private string? _mnegValue;
 
     // График несущей способности
-    [ObservableProperty] public partial CapacityChartDrawable? CapacityChart { get; set; }
-    [ObservableProperty] public partial double CapacityChartHeight { get; set; }
+    [ObservableProperty] private CapacityChartDrawable? _capacityChart;
+    [ObservableProperty] private double _capacityChartHeight;
 
     // Жёсткость
-    [ObservableProperty] public partial string? SjValue { get; set; }
-    [ObservableProperty] public partial string? SjoValue { get; set; }
+    [ObservableProperty] private string? _sjValue;
+    [ObservableProperty] private string? _sjoValue;
+
+    // Пользовательские усилия для диаграммы
+    [ObservableProperty] private string? _userNt;
+    [ObservableProperty] private string? _userNc;
+    [ObservableProperty] private string? _userN;
+    [ObservableProperty] private string? _userQy;
+    [ObservableProperty] private string? _userQz;
+    [ObservableProperty] private string? _userMx;
+    [ObservableProperty] private string? _userMy;
+    [ObservableProperty] private string? _userMz;
+    [ObservableProperty] private string? _userMw;
 
     // Коэффициенты
-    [ObservableProperty] public partial string? AlphaValue { get; set; }
-    [ObservableProperty] public partial string? BetaValue { get; set; }
-    [ObservableProperty] public partial string? GammaValue { get; set; }
-    [ObservableProperty] public partial string? DeltaValue { get; set; }
-    [ObservableProperty] public partial string? EpsilonValue { get; set; }
-    [ObservableProperty] public partial string? LambdaValue { get; set; }
+    [ObservableProperty] private string? _alphaValue;
+    [ObservableProperty] private string? _betaValue;
+    [ObservableProperty] private string? _gammaValue;
+    [ObservableProperty] private string? _deltaValue;
+    [ObservableProperty] private string? _epsilonValue;
+    [ObservableProperty] private string? _lambdaValue;
 
     // Геометрия балки
-    [ObservableProperty] public partial string? BeamProfile { get; set; }
-    [ObservableProperty] public partial string? BeamH { get; set; }
-    [ObservableProperty] public partial string? BeamB { get; set; }
-    [ObservableProperty] public partial string? BeamS { get; set; }
-    [ObservableProperty] public partial string? BeamT { get; set; }
-    [ObservableProperty] public partial string? BeamA { get; set; }
-    [ObservableProperty] public partial string? BeamP { get; set; }
-    [ObservableProperty] public partial string? BeamIz { get; set; }
-    [ObservableProperty] public partial string? BeamIy { get; set; }
-    [ObservableProperty] public partial string? BeamIx { get; set; }
-    [ObservableProperty] public partial string? BeamWz { get; set; }
-    [ObservableProperty] public partial string? BeamWy { get; set; }
-    [ObservableProperty] public partial string? BeamWx { get; set; }
-    [ObservableProperty] public partial string? BeamSz { get; set; }
-    [ObservableProperty] public partial string? BeamSy { get; set; }
-    [ObservableProperty] public partial string? Beamiz { get; set; }
-    [ObservableProperty] public partial string? Beamiy { get; set; }
-    [ObservableProperty] public partial string? BeamXo { get; set; }
+    [ObservableProperty] private string? _beamProfile;
+    [ObservableProperty] private string? _beamH;
+    [ObservableProperty] private string? _beamB;
+    [ObservableProperty] private string? _beamS;
+    [ObservableProperty] private string? _beamT;
+    [ObservableProperty] private string? _beamA;
+    [ObservableProperty] private string? _beamP;
+    [ObservableProperty] private string? _beamIz;
+    [ObservableProperty] private string? _beamIy;
+    [ObservableProperty] private string? _beamIx;
+    [ObservableProperty] private string? _beamWz;
+    [ObservableProperty] private string? _beamWy;
+    [ObservableProperty] private string? _beamWx;
+    [ObservableProperty] private string? _beamSz;
+    [ObservableProperty] private string? _beamSy;
+    [ObservableProperty] private string? _beamiz;
+    [ObservableProperty] private string? _beamiy;
+    [ObservableProperty] private string? _beamXo;
 
     // Геометрия колонны
-    [ObservableProperty] public partial string? ColumnProfile { get; set; }
-    [ObservableProperty] public partial string? ColumnH { get; set; }
-    [ObservableProperty] public partial string? ColumnB { get; set; }
-    [ObservableProperty] public partial string? ColumnS { get; set; }
-    [ObservableProperty] public partial string? ColumnT { get; set; }
-    [ObservableProperty] public partial string? ColumnA { get; set; }
-    [ObservableProperty] public partial string? ColumnP { get; set; }
-    [ObservableProperty] public partial string? ColumnIz { get; set; }
-    [ObservableProperty] public partial string? ColumnIy { get; set; }
-    [ObservableProperty] public partial string? ColumnIx { get; set; }
-    [ObservableProperty] public partial string? ColumnWz { get; set; }
-    [ObservableProperty] public partial string? ColumnWy { get; set; }
-    [ObservableProperty] public partial string? ColumnWx { get; set; }
-    [ObservableProperty] public partial string? ColumnSz { get; set; }
-    [ObservableProperty] public partial string? ColumnSy { get; set; }
-    [ObservableProperty] public partial string? Columniz { get; set; }
-    [ObservableProperty] public partial string? Columniy { get; set; }
-    [ObservableProperty] public partial string? ColumnXo { get; set; }
-    [ObservableProperty] public partial string? ColumnYo { get; set; }
+    [ObservableProperty] private string? _columnProfile;
+    [ObservableProperty] private string? _columnH;
+    [ObservableProperty] private string? _columnB;
+    [ObservableProperty] private string? _columnS;
+    [ObservableProperty] private string? _columnT;
+    [ObservableProperty] private string? _columnA;
+    [ObservableProperty] private string? _columnP;
+    [ObservableProperty] private string? _columnIz;
+    [ObservableProperty] private string? _columnIy;
+    [ObservableProperty] private string? _columnIx;
+    [ObservableProperty] private string? _columnWz;
+    [ObservableProperty] private string? _columnWy;
+    [ObservableProperty] private string? _columnWx;
+    [ObservableProperty] private string? _columnSz;
+    [ObservableProperty] private string? _columnSy;
+    [ObservableProperty] private string? _columniz;
+    [ObservableProperty] private string? _columniy;
+    [ObservableProperty] private string? _columnXo;
+    [ObservableProperty] private string? _columnYo;
 
     // Пластина
-    [ObservableProperty] public partial string? PlateH { get; set; }
-    [ObservableProperty] public partial string? PlateB { get; set; }
-    [ObservableProperty] public partial string? PlateT { get; set; }
+    [ObservableProperty] private string? _plateH;
+    [ObservableProperty] private string? _plateB;
+    [ObservableProperty] private string? _plateT;
 
     // Фланец
-    [ObservableProperty] public partial string? FlangeH { get; set; }
-    [ObservableProperty] public partial string? FlangeB { get; set; }
-    [ObservableProperty] public partial string? FlangeT { get; set; }
-    [ObservableProperty] public partial string? FlangeLb { get; set; }
+    [ObservableProperty] private string? _flangeH;
+    [ObservableProperty] private string? _flangeB;
+    [ObservableProperty] private string? _flangeT;
+    [ObservableProperty] private string? _flangeLb;
 
     // Рёбра жёсткости
-    [ObservableProperty] public partial string? StiffTr1 { get; set; }
-    [ObservableProperty] public partial string? StiffTr2 { get; set; }
-    [ObservableProperty] public partial string? StiffTbp { get; set; }
-    [ObservableProperty] public partial string? StiffTg { get; set; }
-    [ObservableProperty] public partial string? StiffTf { get; set; }
-    [ObservableProperty] public partial string? StiffLh { get; set; }
-    [ObservableProperty] public partial string? StiffHh { get; set; }
-    [ObservableProperty] public partial string? StiffTwp { get; set; }
+    [ObservableProperty] private string? _stiffTr1;
+    [ObservableProperty] private string? _stiffTr2;
+    [ObservableProperty] private string? _stiffTbp;
+    [ObservableProperty] private string? _stiffTg;
+    [ObservableProperty] private string? _stiffTf;
+    [ObservableProperty] private string? _stiffLh;
+    [ObservableProperty] private string? _stiffHh;
+    [ObservableProperty] private string? _stiffTwp;
 
     // Болты
-    [ObservableProperty] public partial string? BoltCount { get; set; }
-    [ObservableProperty] public partial string? BoltRows { get; set; }
-    [ObservableProperty] public partial string? BoltDiameter { get; set; }
-    [ObservableProperty] public partial string? BoltVersion { get; set; }
-    [ObservableProperty] public partial string? BoltCoordZ { get; set; }
-    [ObservableProperty] public partial string? BoltE1 { get; set; }
-    [ObservableProperty] public partial string? BoltP1 { get; set; }
-    [ObservableProperty] public partial string? BoltP2 { get; set; }
-    [ObservableProperty] public partial string? BoltP3 { get; set; }
-    [ObservableProperty] public partial string? BoltP4 { get; set; }
-    [ObservableProperty] public partial string? BoltP5 { get; set; }
-    [ObservableProperty] public partial string? BoltP6 { get; set; }
-    [ObservableProperty] public partial string? BoltP7 { get; set; }
-    [ObservableProperty] public partial string? BoltP8 { get; set; }
-    [ObservableProperty] public partial string? BoltP9 { get; set; }
-    [ObservableProperty] public partial string? BoltP10 { get; set; }
-    [ObservableProperty] public partial string? BoltD1 { get; set; }
-    [ObservableProperty] public partial string? BoltD2 { get; set; }
+    [ObservableProperty] private string? _boltCount;
+    [ObservableProperty] private string? _boltRows;
+    [ObservableProperty] private string? _boltDiameter;
+    [ObservableProperty] private string? _boltVersion;
+    [ObservableProperty] private string? _boltCoordZ;
+    [ObservableProperty] private string? _boltE1;
+    [ObservableProperty] private string? _boltP1;
+    [ObservableProperty] private string? _boltP2;
+    [ObservableProperty] private string? _boltP3;
+    [ObservableProperty] private string? _boltP4;
+    [ObservableProperty] private string? _boltP5;
+    [ObservableProperty] private string? _boltP6;
+    [ObservableProperty] private string? _boltP7;
+    [ObservableProperty] private string? _boltP8;
+    [ObservableProperty] private string? _boltP9;
+    [ObservableProperty] private string? _boltP10;
+    [ObservableProperty] private string? _boltD1;
+    [ObservableProperty] private string? _boltD2;
 
     // Сварка
-    [ObservableProperty] public partial string? WeldKf1 { get; set; }
-    [ObservableProperty] public partial string? WeldKf2 { get; set; }
-    [ObservableProperty] public partial string? WeldKf3 { get; set; }
-    [ObservableProperty] public partial string? WeldKf4 { get; set; }
-    [ObservableProperty] public partial string? WeldKf5 { get; set; }
-    [ObservableProperty] public partial string? WeldKf6 { get; set; }
-    [ObservableProperty] public partial string? WeldKf7 { get; set; }
-    [ObservableProperty] public partial string? WeldKf8 { get; set; }
-    [ObservableProperty] public partial string? WeldKf9 { get; set; }
-    [ObservableProperty] public partial string? WeldKf10 { get; set; }
+    [ObservableProperty] private string? _weldKf1;
+    [ObservableProperty] private string? _weldKf2;
+    [ObservableProperty] private string? _weldKf3;
+    [ObservableProperty] private string? _weldKf4;
+    [ObservableProperty] private string? _weldKf5;
+    [ObservableProperty] private string? _weldKf6;
+    [ObservableProperty] private string? _weldKf7;
+    [ObservableProperty] private string? _weldKf8;
+    [ObservableProperty] private string? _weldKf9;
+    [ObservableProperty] private string? _weldKf10;
 
     // --- Init ---
 
@@ -254,7 +283,7 @@ public partial class MainViewModel : ObservableObject
             Status = log.ToString();
             try
             {
-                var names = await _repository.GetDistinctNamesAsync();
+                var names = await _interactionTableLookupRepository.GetDistinctNamesAsync();
                 log.AppendLine($"   ✅ MongoDB OK — {names.Count} групп");
             }
             catch (Exception mongoEx)
@@ -281,69 +310,22 @@ public partial class MainViewModel : ObservableObject
             IsBusy = true;
             _suppressCascade = true;
 
-            if (_repository is Services.OfflineInteractionTableRepository offline)
-            {
-                Status = $"БД недоступна: {offline.ErrorMessage}";
+            await LoadConnectionNamesAsync();
+            if (!await TrySelectInitialConnectionNameAsync())
                 return;
-            }
 
-            // 1. Группы
-            Status = "Загрузка групп…";
-            var names = await _repository.GetDistinctNamesAsync();
-            ConnectionNames.Clear();
-            foreach (var n in names)
-                ConnectionNames.Add(n);
-
-            if (ConnectionNames.Count == 0)
-            {
-                Status = "Нет данных в БД";
-                return;
-            }
-
-            await Task.Yield();
-            SelectedName = ConnectionNames[0];
-            UpdateSelectedNodePresentation(SelectedName);
-            _ = SafeAsync(LoadNodeImagesAsync(SelectedName!));
-
-            // 2. Профили
             Status = "Загрузка профилей…";
-            var cols = await _repository.GetDistinctProfileColumnsByNameAsync(SelectedName);
-            ProfileColumns.Clear();
-            foreach (var c in cols)
-                ProfileColumns.Add(c);
+            await LoadProfileColumnsAsync(SelectedName!);
+            await SelectFirstProfileColumnAsync();
 
-            var beams = await _repository.GetDistinctProfileBeamsByNameAsync(SelectedName);
-            ProfileBeams.Clear();
-            foreach (var b in beams)
-                ProfileBeams.Add(b);
+            await LoadBeamsForColumnAsync();
+            SelectFirstProfileBeam();
 
-            await Task.Yield();
-            if (ProfileColumns.Count > 0)
-                SelectedProfileColumn = ProfileColumns[0];
-            if (ProfileBeams.Count > 0)
-                SelectedProfileBeam = ProfileBeams[0];
-
-            // 3. Коды соединений
             Status = "Загрузка кодов…";
             await LoadConnectionCodesAsync();
 
-            // 4. Данные узла
             if (!string.IsNullOrWhiteSpace(SelectedName) && !string.IsNullOrWhiteSpace(SelectedConnectionCode))
-            {
-                Status = "Загрузка узла…";
-                var table = await _repository.GetByNameAndConnectionCodeAsync(SelectedName, SelectedConnectionCode);
-                if (table != null)
-                {
-                    ApplyTableData(table);
-                    HasData = true;
-                    Status = $"Узел: {SelectedConnectionCode}";
-                }
-                else
-                {
-                    HasData = false;
-                    Status = "Узел не найден";
-                }
-            }
+                await LoadNodeDataAsync(SelectedName, SelectedConnectionCode);
         }
         catch (Exception ex)
         {
@@ -370,7 +352,32 @@ public partial class MainViewModel : ObservableObject
     partial void OnSelectedProfileColumnChanged(string? value)
     {
         if (_suppressCascade) return;
-        _ = SafeAsync(LoadConnectionCodesAsync());
+        _ = SafeAsync(OnColumnChangedAsync());
+    }
+
+    private async Task OnColumnChangedAsync()
+    {
+        try
+        {
+            _suppressCascade = true;
+
+            await LoadBeamsForColumnAsync();
+
+            await Task.Yield();
+            if (ProfileBeams.Count > 0)
+                SelectedProfileBeam = ProfileBeams[0];
+            else
+                SelectedProfileBeam = null;
+
+            _suppressCascade = false;
+
+            await LoadConnectionCodesAsync();
+        }
+        catch (Exception ex)
+        {
+            _suppressCascade = false;
+            Status = $"Ошибка: {ex.Message}";
+        }
     }
 
     partial void OnSelectedProfileBeamChanged(string? value)
@@ -407,27 +414,14 @@ public partial class MainViewModel : ObservableObject
         {
             _suppressCascade = true;
 
-            var columns = await _repository.GetDistinctProfileColumnsByNameAsync(name);
-            ProfileColumns.Clear();
-            foreach (var c in columns)
-                ProfileColumns.Add(c);
+            await LoadProfileColumnsAsync(name);
+            await SelectFirstProfileColumnAsync();
 
-            var beams = await _repository.GetDistinctProfileBeamsByNameAsync(name);
-            ProfileBeams.Clear();
-            foreach (var b in beams)
-                ProfileBeams.Add(b);
-
-            // Даём Picker на Android обработать обновлённые коллекции
-            await Task.Yield();
-
-            if (ProfileColumns.Count > 0)
-                SelectedProfileColumn = ProfileColumns[0];
-            if (ProfileBeams.Count > 0)
-                SelectedProfileBeam = ProfileBeams[0];
+            await LoadBeamsForColumnAsync();
+            SelectFirstProfileBeam();
 
             _suppressCascade = false;
 
-            // Один явный вызов вместо двух параллельных через property-changed
             await LoadConnectionCodesAsync();
         }
         catch (Exception ex)
@@ -438,26 +432,22 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Загружает список балок, доступных для текущей группы и выбранной колонны.
+    /// </summary>
+    private async Task LoadBeamsForColumnAsync()
+    {
+        ReplaceItems(ProfileBeams, await GetBeamsForCurrentSelectionAsync());
+    }
+
     private async Task LoadConnectionCodesAsync()
     {
         if (string.IsNullOrWhiteSpace(SelectedName)) return;
 
         try
         {
-            IReadOnlyList<string> codes;
-
-            if (!string.IsNullOrWhiteSpace(SelectedProfileColumn) && !string.IsNullOrWhiteSpace(SelectedProfileBeam))
-                codes = await _repository.GetConnectionCodesByNameColumnAndBeamAsync(SelectedName, SelectedProfileColumn, SelectedProfileBeam);
-            else if (!string.IsNullOrWhiteSpace(SelectedProfileColumn))
-                codes = await _repository.GetConnectionCodesByNameAndColumnAsync(SelectedName, SelectedProfileColumn);
-            else if (!string.IsNullOrWhiteSpace(SelectedProfileBeam))
-                codes = await _repository.GetConnectionCodesByNameAndBeamAsync(SelectedName, SelectedProfileBeam);
-            else
-                codes = await _repository.GetConnectionCodesByNameAsync(SelectedName);
-
-            ConnectionCodes.Clear();
-            foreach (var c in codes)
-                ConnectionCodes.Add(c);
+            var codes = await GetConnectionCodesForCurrentSelectionAsync();
+            ReplaceItems(ConnectionCodes, codes);
 
             if (ConnectionCodes.Count > 0)
             {
@@ -480,22 +470,16 @@ public partial class MainViewModel : ObservableObject
             IsBusy = true;
             Status = "Загрузка узла...";
 
-            var table = await _repository.GetByNameAndConnectionCodeAsync(name, connectionCode);
-            if (table == null)
-            {
-                HasData = false;
-                Status = "Узел не найден";
-                return;
-            }
-
-            ApplyTableData(table);
-            HasData = true;
-            Status = $"Узел: {connectionCode}";
+            var table = await _interactionTableReadRepository.GetByNameAndConnectionCodeAsync(name, connectionCode);
+            ApplyLoadedNodeData(table, connectionCode);
+            if (table != null)
+                SynchronizeSelectionsWithLoadedNode(table);
         }
         catch (Exception ex)
         {
             Status = $"Ошибка: {ex.Message}";
             HasData = false;
+            _suppressCascade = false;
         }
         finally
         {
@@ -505,145 +489,18 @@ public partial class MainViewModel : ObservableObject
 
     private void ApplyTableData(InteractionTable table)
     {
-        TableBrand = table.TableBrand;
-
-        // Пояснения из поля Explanations документа
-        NodeExplanation  = string.IsNullOrWhiteSpace(table.Explanations) ? null : table.Explanations;
-        HasExplanation   = !string.IsNullOrWhiteSpace(table.Explanations);
-
-        // Несущая способность
-        var f = table.InternalForces;
-        _currentForces = f;
-        NtValue = Format(f.Nt);
-        NcValue = Format(f.Nc);
-        NValue = Format(f.N);
-        QyValue = Format(f.Qy);
-        QzValue = Format(f.Qz);
-        MxValue = Format(f.Mx);
-        MyValue = Format(f.My);
-        MzValue = Format(f.Mz);
-        MwValue = Format(f.Mw);
-        MnegValue = Format(f.Mneg);
-
-        // График несущей способности
-        UpdateCapacityChart(f, _currentActual);
-
-        // Жёсткость
-        var s = table.Stiffness;
-        SjValue = Format(s.Sj);
-        SjoValue = Format(s.Sjo);
-
-        // Коэффициенты
-        var c = table.Coefficients;
-        AlphaValue = Format(c.Alpha);
-        BetaValue = Format(c.Beta);
-        GammaValue = Format(c.Gamma);
-        DeltaValue = Format(c.Delta);
-        EpsilonValue = Format(c.Epsilon);
-        LambdaValue = Format(c.Lambda);
-
-        // Геометрия балки
-        var beam = table.Geometry.Beam;
-        BeamProfile = beam.ProfileBeam;
-        BeamH = Format(beam.Beam_H);
-        BeamB = Format(beam.Beam_B);
-        BeamS = Format(beam.Beam_s);
-        BeamT = Format(beam.Beam_t);
-        BeamA = Format(beam.Beam_A);
-        BeamP = Format(beam.Beam_P);
-        BeamIz = Format(beam.Beam_Iz);
-        BeamIy = Format(beam.Beam_Iy);
-        BeamIx = Format(beam.Beam_Ix);
-        BeamWz = Format(beam.Beam_Wz);
-        BeamWy = Format(beam.Beam_Wy);
-        BeamWx = Format(beam.Beam_Wx);
-        BeamSz = Format(beam.Beam_Sz);
-        BeamSy = Format(beam.Beam_Sy);
-        Beamiz = Format(beam.Beam_iz);
-        Beamiy = Format(beam.Beam_iy);
-        BeamXo = Format(beam.Beam_xo);
-
-        // Геометрия колонны
-        var col = table.Geometry.Column;
-        ColumnProfile = col.ProfileColumn;
-        ColumnH = Format(col.Column_H);
-        ColumnB = Format(col.Column_B);
-        ColumnS = Format(col.Column_s);
-        ColumnT = Format(col.Column_t);
-        ColumnA = Format(col.Column_A);
-        ColumnP = Format(col.Column_P);
-        ColumnIz = Format(col.Column_Iz);
-        ColumnIy = Format(col.Column_Iy);
-        ColumnIx = Format(col.Column_Ix);
-        ColumnWz = Format(col.Column_Wz);
-        ColumnWy = Format(col.Column_Wy);
-        ColumnWx = Format(col.Column_Wx);
-        ColumnSz = Format(col.Column_Sz);
-        ColumnSy = Format(col.Column_Sy);
-        Columniz = Format(col.Column_iz);
-        Columniy = Format(col.Column_iy);
-        ColumnXo = Format(col.Column_xo);
-        ColumnYo = Format(col.Column_yo);
-
-        // Пластина
-        var plate = table.Geometry.Plate;
-        PlateH = Format(plate.Plate_H);
-        PlateB = Format(plate.Plate_B);
-        PlateT = Format(plate.Plate_t);
-
-        // Фланец
-        var flange = table.Geometry.Flange;
-        FlangeH = Format(flange.Flange_H);
-        FlangeB = Format(flange.Flange_B);
-        FlangeT = Format(flange.Flange_t);
-        FlangeLb = Format(flange.Flange_Lb);
-
-        // Рёбра жёсткости
-        var stiff = table.Geometry.Stiff;
-        StiffTr1 = Format(stiff.Stiff_tr1);
-        StiffTr2 = Format(stiff.Stiff_tr2);
-        StiffTbp = Format(stiff.Stiff_tbp);
-        StiffTg = Format(stiff.Stiff_tg);
-        StiffTf = Format(stiff.Stiff_tf);
-        StiffLh = Format(stiff.Stiff_Lh);
-        StiffHh = Format(stiff.Stiff_Hh);
-        StiffTwp = Format(stiff.Stiff_twp);
-
-        // Болты
-        var bolts = table.Bolts;
-        BoltCount = bolts.CountBolt.Bolts_Nb.ToString();
-        BoltRows = bolts.BoltRow.N_Rows.ToString();
-        BoltDiameter = Format(bolts.DiameterBolt.F);
-        BoltVersion = bolts.Option.version.ToString();
-        BoltCoordZ = Format(bolts.CoordinatesBolts.Z.BoltCoordinateZ);
-        var cy = bolts.CoordinatesBolts.Y;
-        BoltE1 = Format(cy.Bolt1_e1);
-        BoltP1 = Format(cy.Bolt2_p1);
-        BoltP2 = Format(cy.Bolt3_p2);
-        BoltP3 = Format(cy.Bolt4_p3);
-        BoltP4 = Format(cy.Bolt5_p4);
-        BoltP5 = Format(cy.Bolt6_p5);
-        BoltP6 = Format(cy.Bolt7_p6);
-        BoltP7 = Format(cy.Bolt8_p7);
-        BoltP8 = Format(cy.Bolt9_p8);
-        BoltP9 = Format(cy.Bolt10_p9);
-        BoltP10 = Format(cy.Bolt11_p10);
-        var cx = bolts.CoordinatesBolts.X;
-        BoltD1 = Format(cx.d1);
-        BoltD2 = Format(cx.d2);
-
-        // Сварка
-        var w = table.Welds;
-        WeldKf1 = Format(w.kf1);
-        WeldKf2 = Format(w.kf2);
-        WeldKf3 = Format(w.kf3);
-        WeldKf4 = Format(w.kf4);
-        WeldKf5 = Format(w.kf5);
-        WeldKf6 = Format(w.kf6);
-        WeldKf7 = Format(w.kf7);
-        WeldKf8 = Format(w.kf8);
-        WeldKf9 = Format(w.kf9);
-        WeldKf10 = Format(w.kf10);
+        ApplyHeaderData(table);
+        ApplyExplanationData(table);
+        ApplyForcesData(table.InternalForces);
+        ApplyStiffnessData(table.Stiffness);
+        ApplyCoefficientData(table.Coefficients);
+        ApplyBeamGeometry(table.Geometry.Beam);
+        ApplyColumnGeometry(table.Geometry.Column);
+        ApplyPlateData(table.Geometry.Plate);
+        ApplyFlangeData(table.Geometry.Flange);
+        ApplyStiffenerData(table.Geometry.Stiff);
+        ApplyBoltData(table.Bolts);
+        ApplyWeldData(table.Welds);
     }
 
     private void UpdateSelectedNodePresentation(string? name)
@@ -704,22 +561,23 @@ public partial class MainViewModel : ObservableObject
         ImageIndexText = $"{_nodeImageIndex + 1} / {_nodeImages.Count}";
     }
 
-    private void UpdateCapacityChart(InternalForcesData f, Rs1SummaryForces? actual = null)
+    private void UpdateCapacityChart(InternalForcesData f, Rs1SummaryForces? actual = null, Rs1SummaryForces? user = null)
     {
         var forceColor = Color.FromArgb("#2B579A");   // Primary — силы
         var momentColor = Color.FromArgb("#217346");  // Accent — моменты
+        var userColor = Color.FromArgb("#107C10");    // пользовательские усилия
 
         var items = new List<CapacityBarItem>
         {
-            new("Nt, кН", f.Nt, forceColor, actual?.Nt),
-            new("Nc, кН", f.Nc, forceColor, actual?.Nc),
-            new("N, кН", f.N, forceColor, actual?.N),
-            new("Qy, кН", f.Qy, forceColor, actual?.Qy),
-            new("Qz, кН", f.Qz, forceColor, actual?.Qz),
-            new("Mx, кН·м", f.Mx, momentColor, actual?.Mx),
-            new("My, кН·м", f.My, momentColor, actual?.My),
-            new("Mz, кН·м", f.Mz, momentColor, actual?.Mz),
-            new("Mw, кН·м²", f.Mw, momentColor, actual?.Mw),
+            new("Nt, кН", f.Nt, forceColor, actual?.Nt, null, user?.Nt, userColor),
+            new("Nc, кН", f.Nc, forceColor, actual?.Nc, null, user?.Nc, userColor),
+            new("N, кН", f.N, forceColor, actual?.N, null, user?.N, userColor),
+            new("Qy, кН", f.Qy, forceColor, actual?.Qy, null, user?.Qy, userColor),
+            new("Qz, кН", f.Qz, forceColor, actual?.Qz, null, user?.Qz, userColor),
+            new("Mx, кН·м", f.Mx, momentColor, actual?.Mx, null, user?.Mx, userColor),
+            new("My, кН·м", f.My, momentColor, actual?.My, null, user?.My, userColor),
+            new("Mz, кН·м", f.Mz, momentColor, actual?.Mz, null, user?.Mz, userColor),
+            new("Mw, кН·м²", f.Mw, momentColor, actual?.Mw, null, user?.Mw, userColor),
         };
 
         var drawable = new CapacityChartDrawable();
@@ -737,8 +595,226 @@ public partial class MainViewModel : ObservableObject
     {
         _currentActual = actual;
         if (_currentForces == null) return;
-        UpdateCapacityChart(_currentForces, actual);
+        UpdateCapacityChart(_currentForces, actual, GetUserForces());
+    }
+
+    partial void OnUserNtChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserNcChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserNChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserQyChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserQzChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserMxChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserMyChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserMzChanged(string? value) => RebuildCapacityChartWithUserValues();
+    partial void OnUserMwChanged(string? value) => RebuildCapacityChartWithUserValues();
+
+    private void RebuildCapacityChartWithUserValues()
+    {
+        if (_currentForces == null) return;
+        UpdateCapacityChart(_currentForces, _currentActual, GetUserForces());
+    }
+
+    private Rs1SummaryForces? GetUserForces()
+    {
+        static double? Parse(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            var t = value.Trim().Replace(',', '.');
+            return double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d)
+                ? d
+                : null;
+        }
+
+        var nt = Parse(UserNt) ?? Parse(UserN);
+        var nc = Parse(UserNc) ?? Parse(UserN);
+        var n = Parse(UserN);
+        var qy = Parse(UserQy);
+        var qz = Parse(UserQz);
+        var mx = Parse(UserMx);
+        var my = Parse(UserMy);
+        var mz = Parse(UserMz);
+        var mw = Parse(UserMw);
+
+        if (nt is null && nc is null && n is null && qy is null && qz is null && mx is null && my is null && mz is null && mw is null)
+            return null;
+
+        return new Rs1SummaryForces(n, nt, nc, qy, qz, mx, my, mz, mw);
+    }
+
+    [RelayCommand]
+    private async Task CopyAllNodeDataAsync()
+    {
+        if (!HasData) return;
+
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine($"Узел: {SelectedConnectionCode}");
+        sb.AppendLine($"Группа: {SelectedName}");
+        sb.AppendLine($"Марка: {TableBrand}");
+        sb.AppendLine();
+
+        // Несущая способность
+        sb.AppendLine("═══ Несущая способность ═══");
+        AppendLine(sb, "Nt, кН", NtValue);
+        AppendLine(sb, "Nc, кН", NcValue);
+        AppendLine(sb, "N, кН", NValue);
+        AppendLine(sb, "Qy, кН", QyValue);
+        AppendLine(sb, "Qz, кН", QzValue);
+        AppendLine(sb, "Mx, кН·м", MxValue);
+        AppendLine(sb, "My, кН·м", MyValue);
+        AppendLine(sb, "Mz, кН·м", MzValue);
+        AppendLine(sb, "Mw, кН·м²", MwValue);
+        AppendLine(sb, "Mneg, кН·м", MnegValue);
+        sb.AppendLine();
+
+        // Жёсткость
+        sb.AppendLine("═══ Жёсткость ═══");
+        AppendLine(sb, "Sj, кН·м/рад", SjValue);
+        AppendLine(sb, "Sjo, кН·м/рад", SjoValue);
+        sb.AppendLine();
+
+        // Коэффициенты
+        sb.AppendLine("═══ Коэффициенты ═══");
+        AppendLine(sb, "α", AlphaValue);
+        AppendLine(sb, "β", BetaValue);
+        AppendLine(sb, "γ", GammaValue);
+        AppendLine(sb, "δ", DeltaValue);
+        AppendLine(sb, "ε", EpsilonValue);
+        AppendLine(sb, "λ", LambdaValue);
+        sb.AppendLine();
+
+        // Геометрия колонны
+        sb.AppendLine($"═══ Колонна: {ColumnProfile} ═══");
+        AppendLine(sb, "H, мм", ColumnH);
+        AppendLine(sb, "B, мм", ColumnB);
+        AppendLine(sb, "s, мм", ColumnS);
+        AppendLine(sb, "t, мм", ColumnT);
+        AppendLine(sb, "A, см²", ColumnA);
+        AppendLine(sb, "P, кг/м", ColumnP);
+        AppendLine(sb, "Ix, см⁴", ColumnIx);
+        AppendLine(sb, "Iy, см⁴", ColumnIy);
+        AppendLine(sb, "Iz, см⁴", ColumnIz);
+        AppendLine(sb, "Wy, см³", ColumnWy);
+        AppendLine(sb, "Wz, см³", ColumnWz);
+        AppendLine(sb, "Wx, см³", ColumnWx);
+        AppendLine(sb, "Sy, см³", ColumnSy);
+        AppendLine(sb, "Sz, см³", ColumnSz);
+        AppendLine(sb, "iy, см", Columniy);
+        AppendLine(sb, "iz, см", Columniz);
+        AppendLine(sb, "xo, см", ColumnXo);
+        AppendLine(sb, "yo, см", ColumnYo);
+        sb.AppendLine();
+
+        // Геометрия балки
+        sb.AppendLine($"═══ Балка: {BeamProfile} ═══");
+        AppendLine(sb, "H, мм", BeamH);
+        AppendLine(sb, "B, мм", BeamB);
+        AppendLine(sb, "s, мм", BeamS);
+        AppendLine(sb, "t, мм", BeamT);
+        AppendLine(sb, "A, см²", BeamA);
+        AppendLine(sb, "P, кг/м", BeamP);
+        AppendLine(sb, "Ix, см⁴", BeamIx);
+        AppendLine(sb, "Iy, см⁴", BeamIy);
+        AppendLine(sb, "Iz, см⁴", BeamIz);
+        AppendLine(sb, "Wy, см³", BeamWy);
+        AppendLine(sb, "Wz, см³", BeamWz);
+        AppendLine(sb, "Wx, см³", BeamWx);
+        AppendLine(sb, "Sy, см³", BeamSy);
+        AppendLine(sb, "Sz, см³", BeamSz);
+        AppendLine(sb, "iy, см", Beamiy);
+        AppendLine(sb, "iz, см", Beamiz);
+        AppendLine(sb, "xo, см", BeamXo);
+        sb.AppendLine();
+
+        // Пластина
+        sb.AppendLine("═══ Пластина ═══");
+        AppendLine(sb, "H, мм", PlateH);
+        AppendLine(sb, "B, мм", PlateB);
+        AppendLine(sb, "t, мм", PlateT);
+        sb.AppendLine();
+
+        // Фланец
+        sb.AppendLine("═══ Фланец ═══");
+        AppendLine(sb, "H, мм", FlangeH);
+        AppendLine(sb, "B, мм", FlangeB);
+        AppendLine(sb, "t, мм", FlangeT);
+        AppendLine(sb, "Lb, мм", FlangeLb);
+        sb.AppendLine();
+
+        // Рёбра жёсткости
+        sb.AppendLine("═══ Рёбра жёсткости ═══");
+        AppendLine(sb, "tr1, мм", StiffTr1);
+        AppendLine(sb, "tr2, мм", StiffTr2);
+        AppendLine(sb, "tbp, мм", StiffTbp);
+        AppendLine(sb, "tg, мм", StiffTg);
+        AppendLine(sb, "tf, мм", StiffTf);
+        AppendLine(sb, "twp, мм", StiffTwp);
+        AppendLine(sb, "Lh, мм", StiffLh);
+        AppendLine(sb, "Hh, мм", StiffHh);
+        sb.AppendLine();
+
+        // Болты
+        sb.AppendLine("═══ Болты ═══");
+        AppendLine(sb, "Кол-во", BoltCount);
+        AppendLine(sb, "Рядов", BoltRows);
+        AppendLine(sb, "Диаметр, мм", BoltDiameter);
+        AppendLine(sb, "Версия", BoltVersion);
+        AppendLine(sb, "Коорд. Z", BoltCoordZ);
+        AppendLine(sb, "e1", BoltE1);
+        AppendLine(sb, "p1", BoltP1);
+        AppendLine(sb, "p2", BoltP2);
+        AppendLine(sb, "p3", BoltP3);
+        AppendLine(sb, "p4", BoltP4);
+        AppendLine(sb, "p5", BoltP5);
+        AppendLine(sb, "p6", BoltP6);
+        AppendLine(sb, "p7", BoltP7);
+        AppendLine(sb, "p8", BoltP8);
+        AppendLine(sb, "p9", BoltP9);
+        AppendLine(sb, "p10", BoltP10);
+        AppendLine(sb, "d1", BoltD1);
+        AppendLine(sb, "d2", BoltD2);
+        sb.AppendLine();
+
+        // Сварка
+        sb.AppendLine("═══ Сварка ═══");
+        AppendLine(sb, "kf1", WeldKf1);
+        AppendLine(sb, "kf2", WeldKf2);
+        AppendLine(sb, "kf3", WeldKf3);
+        AppendLine(sb, "kf4", WeldKf4);
+        AppendLine(sb, "kf5", WeldKf5);
+        AppendLine(sb, "kf6", WeldKf6);
+        AppendLine(sb, "kf7", WeldKf7);
+        AppendLine(sb, "kf8", WeldKf8);
+        AppendLine(sb, "kf9", WeldKf9);
+        AppendLine(sb, "kf10", WeldKf10);
+
+        // Примечания
+        if (HasExplanation)
+        {
+            sb.AppendLine();
+            sb.AppendLine("═══ Примечания ═══");
+            sb.AppendLine(NodeExplanation);
+        }
+
+        await Clipboard.Default.SetTextAsync(sb.ToString());
+        Status = "✓ Данные узла скопированы в буфер обмена";
+    }
+
+    private static void AppendLine(System.Text.StringBuilder sb, string label, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && value != "—")
+            sb.AppendLine($"  {label}: {value}");
     }
 
     private static string Format(double value) => value == 0 ? "—" : value.ToString("G6");
+
+    private static string Format(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return "—";
+        var t = value.Trim();
+        var normalized = t.Replace(',', '.');
+        if (double.TryParse(normalized, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d))
+            return d == 0 ? "—" : d.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
+        return t;
+    }
 }

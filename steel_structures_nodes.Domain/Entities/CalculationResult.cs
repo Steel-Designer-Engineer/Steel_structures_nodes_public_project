@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Domain.Entities;
+namespace steel_structures_nodes.Domain.Entities;
 
 /// <summary>
 /// Результат расчёта РС1, сохраняемый в MongoDB (коллекция ResultDB).

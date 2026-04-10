@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Steel_structures_nodes_public_project.Wpf.Models;
-using Steel_structures_nodes_public_project.Wpf.Services;
+using steel_structures_nodes.Wpf.Models;
+using steel_structures_nodes.Wpf.Services;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Базовый класс для тестов данных interaction_tables.json.
@@ -76,10 +76,10 @@ namespace Steel_structures_nodes_public_project.Tests
                 Delta = p.TryGetNestedDouble(row, "Coefficients.Delta") ?? p.TryGetNullableDouble(row, "δ"),
                 Epsilon = p.TryGetNestedDouble(row, "Coefficients.Epsilon") ?? p.TryGetNullableDouble(row, "ε"),
                 Lambda = p.TryGetNestedDouble(row, "Coefficients.Lambda") ?? p.TryGetNullableDouble(row, "λ"),
-                SectionH = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_H") ?? p.TryGetNullableDouble(row, "H"),
-                SectionB = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_B") ?? p.TryGetNullableDouble(row, "B"),
-                SectionS = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_s") ?? p.TryGetNullableDouble(row, "s"),
-                SectionT = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_t") ?? p.TryGetNullableDouble(row, "t"),
+                BeamH = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_H") ?? p.TryGetNullableDouble(row, "H"),
+                BeamB = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_B") ?? p.TryGetNullableDouble(row, "B"),
+                BeamS = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_s") ?? p.TryGetNullableDouble(row, "s"),
+                BeamT = p.TryGetNestedDouble(row, "Geometry.Beam.Beam_t") ?? p.TryGetNullableDouble(row, "t"),
             };
         }
 

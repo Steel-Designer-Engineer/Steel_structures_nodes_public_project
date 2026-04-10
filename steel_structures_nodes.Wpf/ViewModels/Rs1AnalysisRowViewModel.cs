@@ -1,7 +1,7 @@
 using System.Globalization;
-using Steel_structures_nodes_public_project.Wpf.Mvvm;
+using steel_structures_nodes.Wpf.Mvvm;
 
-namespace Steel_structures_nodes_public_project.Wpf.ViewModels
+namespace steel_structures_nodes.Wpf.ViewModels
 {
     /// <summary>
     /// ViewModel СЃС‚СЂРѕРєРё С‚Р°Р±Р»РёС†С‹ Р°РЅР°Р»РёР·Р° Р РЎ1 РґР»СЏ РїСЂРёРІСЏР·РєРё РґР°РЅРЅС‹С… РІ UI.

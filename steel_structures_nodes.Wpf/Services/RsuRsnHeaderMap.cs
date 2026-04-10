@@ -1,6 +1,6 @@
 using System;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// РљР°СЂС‚Р° Р·Р°РіРѕР»РѕРІРєРѕРІ Excel-Р»РёСЃС‚Р° Р РЎРЈ/Р РЎРќ: РЅРѕРјРµСЂР° СЃС‚РѕР»Р±С†РѕРІ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРѕР»СЏ РґР°РЅРЅС‹С….

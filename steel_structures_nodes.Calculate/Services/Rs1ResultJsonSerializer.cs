@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Steel_structures_nodes_public_project.Calculate;
-using Steel_structures_nodes_public_project.Calculate.Models;
+using steel_structures_nodes.Calculate.Calculate;
+using steel_structures_nodes.Calculate.Models;
 
-namespace Steel_structures_nodes_public_project.Calculate.Services
+namespace steel_structures_nodes.Calculate.Services
 {
     /// <summary>
     /// Сериализация / десериализация результата расчёта РС1 (<see cref="ForceRow"/>) в JSON (Result_vXXX.json).

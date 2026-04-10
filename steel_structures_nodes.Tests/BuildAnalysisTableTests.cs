@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Steel_structures_nodes_public_project.Calculate.Models;
+using steel_structures_nodes.Calculate.Models;
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Тесты общего поведения <see cref="Calculator.BuildAnalysisTable"/> из проекта steel_structures_nodes.Calculate:

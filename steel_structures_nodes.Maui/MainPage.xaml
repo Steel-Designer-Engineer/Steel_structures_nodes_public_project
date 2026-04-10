@@ -43,6 +43,15 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <!-- Кнопка копирования всех данных узла -->
+            <Button Text="📋 Копировать все данные узла"
+                    Command="{Binding CopyAllNodeDataCommand}"
+                    IsVisible="{Binding HasData}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontSize="13" HeightRequest="40" Padding="12,0"
+                    HorizontalOptions="Fill" />
+
             <!-- ═══ Превью узла ═══ -->
             <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent">
                 <VerticalStackLayout Spacing="4">
@@ -120,6 +129,38 @@
                         </VerticalStackLayout>
                     </Frame>
 
+                    <Frame BackgroundColor="{StaticResource Surface}" Padding="10" CornerRadius="6"
+                           HasShadow="False" BorderColor="{StaticResource Muted}"
+                           IsVisible="{Binding HasData}">
+                        <VerticalStackLayout Spacing="6">
+                            <Label FontSize="13"
+                                   TextColor="{StaticResource Muted}"
+                                   LineBreakMode="WordWrap">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Тип узла(Rigid Joint - жесткое соединение, Hinged Joint - шарнирное соединение): "
+                                              TextColor="{StaticResource Primary}"
+                                              FontAttributes="Bold" />
+                                        <Span Text="{Binding TypeNode}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label FontSize="13"
+                                   TextColor="{StaticResource Muted}"
+                                   LineBreakMode="WordWrap">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Тип опорного столика: "
+                                              TextColor="{StaticResource Primary}"
+                                              FontAttributes="Bold" />
+                                        <Span Text="{Binding TableBrand}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Frame>
+
                 </VerticalStackLayout>
             </Frame>
 
@@ -128,7 +169,6 @@
                    IsVisible="{Binding HasData}">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Несущая способность" Style="{StaticResource SectionHeader}" />
-                    <Label Text="{Binding TableBrand, StringFormat='Марка: {0}'}" FontSize="13" TextColor="{StaticResource Muted}" />
 
                     <!-- Продольные силы -->
                     <Label Text="Продольные силы" FontSize="13" FontAttributes="Bold" Margin="0,8,0,0" />
@@ -673,6 +713,43 @@
                         </Frame>
 
                     </VerticalStackLayout>
+
+            <!-- ═══ Пользовательские усилия ═══ -->
+            <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"
+                   IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Пользовательские усилия" Style="{StaticResource SectionHeader}" />
+                    <Label Text="Эти усилия добавляются на диаграмму несущей способности как отдельная серия."
+                           FontSize="12"
+                           TextColor="{StaticResource Muted}" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                          ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Nt, кН:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="0" Grid.Column="1" Text="{Binding UserNt}" Keyboard="Numeric" TextColor="Black" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Nc, кН:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="0" Grid.Column="3" Text="{Binding UserNc}" Keyboard="Numeric" TextColor="Black" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="N, кН:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding UserN}" Keyboard="Numeric" TextColor="Black" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Qy, кН:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="2" Grid.Column="1" Text="{Binding UserQy}" Keyboard="Numeric" TextColor="Black" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="Qz, кН:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="2" Grid.Column="3" Text="{Binding UserQz}" Keyboard="Numeric" TextColor="Black" />
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Mx, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="3" Grid.Column="1" Text="{Binding UserMx}" Keyboard="Numeric" TextColor="Black" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="My, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="3" Grid.Column="3" Text="{Binding UserMy}" Keyboard="Numeric" TextColor="Black" />
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Mz, кН·м:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="4" Grid.Column="1" Text="{Binding UserMz}" Keyboard="Numeric" TextColor="Black" />
+                        <Label Grid.Row="4" Grid.Column="2" Text="Mw, кН·м²:" Style="{StaticResource FieldLabel}" />
+                        <Entry Grid.Row="4" Grid.Column="3" Text="{Binding UserMw}" Keyboard="Numeric" TextColor="Black" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
 
             <!-- ═══ Сравнительная диаграмма: табличные vs расчётные ═══ -->
             <Frame BackgroundColor="{StaticResource CardBackground}" Padding="12" CornerRadius="8" HasShadow="True" BorderColor="Transparent"

@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Collections.Generic;
-using Steel_structures_nodes_public_project.Calculate;
+using steel_structures_nodes.Calculate.Calculate;
 
-namespace Steel_structures_nodes_public_project.Calculate.Models
+namespace steel_structures_nodes.Calculate.Models
 {
     /// <summary>
     /// Базовая модель строки силовых данных, импортированных из Excel (или полученная расчётом для вывода).

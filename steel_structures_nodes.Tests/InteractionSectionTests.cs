@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Тесты параметров сечения (H, B, s, t) из interaction_tables.json.
@@ -14,7 +14,7 @@ namespace Steel_structures_nodes_public_project.Tests
             foreach (var e in AllEntries)
             {
                 var expected = RawDouble(e.Raw, "H");
-                Assert.Equal(expected, e.Node.SectionH);
+                Assert.Equal(expected, e.Node.BeamH);
             }
         }
 
@@ -25,7 +25,7 @@ namespace Steel_structures_nodes_public_project.Tests
             foreach (var e in AllEntries)
             {
                 var expected = RawDouble(e.Raw, "B");
-                Assert.Equal(expected, e.Node.SectionB);
+                Assert.Equal(expected, e.Node.BeamB);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Steel_structures_nodes_public_project.Tests
             foreach (var e in AllEntries)
             {
                 var expected = RawDouble(e.Raw, "s");
-                Assert.Equal(expected, e.Node.SectionS);
+                Assert.Equal(expected, e.Node.BeamS);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Steel_structures_nodes_public_project.Tests
             foreach (var e in AllEntries)
             {
                 var expected = RawDouble(e.Raw, "t");
-                Assert.Equal(expected, e.Node.SectionT);
+                Assert.Equal(expected, e.Node.BeamT);
             }
         }
     }

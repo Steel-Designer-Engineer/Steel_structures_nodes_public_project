@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Тесты переменной Qy — поперечная сила Qy из interaction_tables.json.

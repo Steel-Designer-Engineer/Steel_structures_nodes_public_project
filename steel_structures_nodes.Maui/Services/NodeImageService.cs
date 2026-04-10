@@ -1,20 +1,25 @@
-using Steel_structures_nodes_public_project.Domain.Repositories;
+using System.Collections.Concurrent;
+using steel_structures_nodes.Domain.Services.NodeImages;
+using steel_structures_nodes.Domain.Contracts;
 
-namespace Steel_structures_nodes_public_project.Maui.Services;
+namespace steel_structures_nodes.Maui.Services;
 
 /// <summary>
-/// Загружает изображения узлов из MongoDB (коллекция NodeNotesImagesDB).
+/// Загружает изображения узлов.
+/// Двухуровневый кэш: in-memory → Redis → MongoDB.
 /// </summary>
-public sealed class NodeImageService
+public sealed class NodeImageService : INodeImageService
 {
-    private static readonly string[] Extensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif"];
-    private const int MaxNumberedVariants = 20;
-
     private readonly INodeImageRepository _repository;
+    private readonly RedisImageCacheService? _redisCache;
 
-    public NodeImageService(INodeImageRepository repository)
+    // L1: in-memory кэш (живёт пока работает приложение)
+    private readonly ConcurrentDictionary<string, List<(string Filename, byte[] Data)>> _memCache = new();
+
+    public NodeImageService(INodeImageRepository repository, RedisImageCacheService? redisCache = null)
     {
         _repository = repository;
+        _redisCache = redisCache;
     }
 
     /// <summary>
@@ -30,24 +35,72 @@ public sealed class NodeImageService
 
         try
         {
-            // Строим полный список точных имён файлов для запроса
-            var filenames = BuildAllPossibleFilenames(nodeCode);
+            var cacheKey = nodeCode.Trim().ToLowerInvariant();
 
-            // Индекс для сортировки по порядку из сгенерированного списка
-            var order = filenames
-                .Select((f, i) => (f.ToLowerInvariant(), i))
-                .ToDictionary(x => x.Item1, x => x.i);
-
-            var images = await _repository.GetByFilenamesAsync(filenames, cancellationToken);
-
-            // Сортируем результат по порядку из filenames
-            var sorted = images.OrderBy(img =>
-                order.TryGetValue(img.Filename.ToLowerInvariant(), out var idx) ? idx : int.MaxValue);
-
-            foreach (var (_, data) in sorted)
+            if (!_memCache.TryGetValue(cacheKey, out var cachedImages))
             {
-                if (data.Length == 0) continue;
-                var bytes = data; // копия для замыкания
+                // L2: пробуем Redis
+                if (_redisCache is { IsAvailable: true })
+                {
+                    var fromRedis = await _redisCache.TryGetAsync(nodeCode);
+                    if (fromRedis is { Count: > 0 })
+                    {
+                        // Восстанавливаем порядок по сгенерированным именам
+                        var filenames = NodeImageFilenameBuilder.BuildAllPossibleFilenames(nodeCode);
+                        var order = filenames
+                            .Select((f, i) => (f.ToLowerInvariant(), i))
+                            .ToDictionary(x => x.Item1, x => x.i);
+
+                        cachedImages = fromRedis
+                            .OrderBy(img =>
+                                order.TryGetValue(img.Filename.ToLowerInvariant(), out var idx) ? idx : int.MaxValue)
+                            .ToList();
+
+                        _memCache[cacheKey] = cachedImages;
+                        System.Diagnostics.Debug.WriteLine($"NodeImageService: {cacheKey} — из Redis ({cachedImages.Count} шт.)");
+                    }
+                }
+
+                // L3: MongoDB
+                if (cachedImages is null)
+                {
+                    var filenames = NodeImageFilenameBuilder.BuildAllPossibleFilenames(nodeCode);
+
+                    var order = filenames
+                        .Select((f, i) => (f.ToLowerInvariant(), i))
+                        .ToDictionary(x => x.Item1, x => x.i);
+
+                    var images = await _repository.GetByFilenamesAsync(filenames, cancellationToken);
+
+                    cachedImages = images
+                        .Where(img => img.Data.Length > 0)
+                        .OrderBy(img =>
+                            order.TryGetValue(img.Filename.ToLowerInvariant(), out var idx) ? idx : int.MaxValue)
+                        .Select(img => (img.Filename, img.Data))
+                        .ToList();
+
+                    _memCache[cacheKey] = cachedImages;
+
+                    // Записываем в Redis в фоне
+                    if (_redisCache is { IsAvailable: true } && cachedImages.Count > 0)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            try { await _redisCache.SetAsync(nodeCode, cachedImages); }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Redis write error: {ex.Message}");
+                            }
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"NodeImageService: {cacheKey} — из MongoDB ({cachedImages.Count} шт.)");
+                }
+            }
+
+            foreach (var (_, data) in cachedImages)
+            {
+                var bytes = data;
                 result.Add(ImageSource.FromStream(() => new MemoryStream(bytes)));
             }
         }
@@ -57,70 +110,5 @@ public sealed class NodeImageService
         }
 
         return result;
-    }
-
-    // ─── Вспомогательные методы ──────────────────────────────────────────────
-
-    /// <summary>
-    /// Генерирует все возможные точные имена файлов для заданного кода узла.
-    /// Пример для "BH_1": BH_1.png, BH.png, BH_1.jpg, ..., BH_1_1.png, BH_1_2.png, ...
-    /// </summary>
-    private static List<string> BuildAllPossibleFilenames(string nodeCode)
-    {
-        var candidates = BuildCodeCandidates(nodeCode);
-        var list = new List<string>();
-
-        foreach (var c in candidates)
-        {
-            // Без суффикса: BH.png, BH.jpg, …
-            foreach (var ext in Extensions)
-                list.Add(c + ext);
-
-            // С числовым суффиксом: BH_1.png, BH_2.png, …
-            for (int i = 1; i <= MaxNumberedVariants; i++)
-                foreach (var ext in Extensions)
-                    list.Add($"{c}_{i}{ext}");
-        }
-
-        return list;
-    }
-
-    private static string[] BuildCodeCandidates(string nodeCode)
-    {
-        var c0 = (nodeCode ?? string.Empty).Trim();
-        if (c0.Length == 0)
-            return [];
-
-        var list = new List<string>();
-
-        void Add(string s)
-        {
-            s = s.Trim();
-            if (s.Length > 0 && !list.Contains(s, StringComparer.OrdinalIgnoreCase))
-                list.Add(s);
-        }
-
-        Add(c0);
-        Add(ExtractPrefix(c0));
-
-        var dash = c0.IndexOf('-');
-        if (dash > 0) Add(c0[..dash]);
-
-        foreach (var s in list.ToArray())
-        {
-            if (s.EndsWith('_'))
-                Add(s.TrimEnd('_'));
-            else
-                Add(s + "_");
-        }
-
-        return [.. list];
-    }
-
-    private static string ExtractPrefix(string code)
-    {
-        var t = code.Trim();
-        var i = t.IndexOf('_');
-        return i > 0 ? t[..i] : t;
     }
 }

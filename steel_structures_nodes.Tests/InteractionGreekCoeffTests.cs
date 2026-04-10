@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Тесты коэффициентов взаимодействия (α, β, γ, δ, ε, λ) из interaction_tables.json.

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Steel_structures_nodes_public_project.Calculate.Services
+namespace steel_structures_nodes.Calculate.Services
 {
     /// <summary>
     /// Метаданные Excel-книги: содержит список имён листов.

@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Wpf.Models
+namespace steel_structures_nodes.Wpf.Models
 {
     /// <summary>
     /// Р—Р°РїСЂРѕСЃ РЅР° РёРјРїРѕСЂС‚ РґР°РЅРЅС‹С… РёР· Excel: РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ Рё РёРјСЏ Р»РёСЃС‚Р°.

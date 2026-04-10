@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Services;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Services;
 using Xunit;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Тесты метода <see cref="Calculator.CalculateAndSave"/> из проекта steel_structures_nodes.Calculate —

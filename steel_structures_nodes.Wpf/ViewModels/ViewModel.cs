@@ -8,28 +8,29 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Steel_structures_nodes_public_project.Calculate;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Services;
-using Steel_structures_nodes_public_project.Domain.Repositories;
-using Steel_structures_nodes_public_project.Wpf.Mvvm;
-using Steel_structures_nodes_public_project.Wpf.Models;
-using Steel_structures_nodes_public_project.Wpf.Services;
-using Steel_structures_nodes_public_project.Calculate.Models.RSN;
-using Steel_structures_nodes_public_project.Calculate.Models.RSU;
+using steel_structures_nodes.Data.Contracts;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Services;
+using steel_structures_nodes.Wpf.Mvvm;
+using steel_structures_nodes.Wpf.Models;
+using steel_structures_nodes.Wpf.Services;
+using steel_structures_nodes.Calculate.Models.RSN;
+using steel_structures_nodes.Calculate.Models.RSU;
+using steel_structures_nodes.Domain.Contracts;
 
-namespace Steel_structures_nodes_public_project.Wpf.ViewModels
+namespace steel_structures_nodes.Wpf.ViewModels
 {
     /// <summary>
     /// Главная ViewModel расчёта РС1: импорт РСУ/РСН, вычисление усилий, отображение результатов и коэффициентов.
     /// </summary>
-    public class ViewModel : ViewModelBase
+    public partial class ViewModel : ViewModelBase
     {
         private readonly IExcelImportDialogService _excelImportDialogService;
-        private readonly Steel_structures_nodes_public_project.Calculate.Services.IExcelReader _excelReader;
-        private readonly InteractionTableService _interactionService;
+        private readonly steel_structures_nodes.Calculate.Services.IExcelReader _excelReader;
+        private readonly IInteractionTableService _interactionService;
         private readonly ICalculationResultRepository _calculationResultRepository;
-        private readonly WpfNodeImageService _nodeImageService;
+        private readonly IDataAccessFailureNotifier _dataAccessFailureNotifier;
+        private readonly IWpfNodeImageService _nodeImageService;
 
         private string _status;
         private string _nodeTopology;
@@ -46,7 +47,7 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         private int _nodeImageIndex;
 
         private bool _isInitialized;
-        private Steel_structures_nodes_public_project.Wpf.Models.StandardNodeData _lastStandardNodeData;
+        private steel_structures_nodes.Wpf.Models.StandardNodeData _lastStandardNodeData;
 
         private double? _lastCalcNPlus;
         private double? _lastCalcNMinus;
@@ -58,6 +59,16 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         private double? _lastCalcMwAbs;
         private bool _hasCalcData;
 
+        private string _userNt = string.Empty;
+        private string _userNc = string.Empty;
+        private string _userN = string.Empty;
+        private string _userQy = string.Empty;
+        private string _userQz = string.Empty;
+        private string _userMx = string.Empty;
+        private string _userMy = string.Empty;
+        private string _userMz = string.Empty;
+        private string _userMw = string.Empty;
+
         private string _gammaF = "1";
         private WindowState _windowState = WindowState.Normal;
 
@@ -65,26 +76,25 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         public event Action CalculationCompleted;
 
         /// <summary>Доступные значения коэффициента ?_f для выбора в ComboBox.</summary>
-        public ObservableCollection<string> GammaFOptions { get; } = new ObservableCollection<string> { "1","1.05", "1.1", "1.15", "1.2", "1.3" };
-
-        /// <summary>Конструктор по умолчанию. Создаёт сервисы импорта Excel и передаёт зависимости в основной конструктор.</summary>
-        public ViewModel(IInteractionTableRepository interactionTableRepository, ICalculationResultRepository calculationResultRepository, WpfNodeImageService nodeImageService)
-            : this(new ExcelImportDialogService(), new EpplusExcelReader(), interactionTableRepository, calculationResultRepository, nodeImageService)
-        {
-        }
+        public ObservableCollection<string> GammaFOptions { get; } = new ObservableCollection<string> { "1", "1.05", "1.1", "1.15", "1.2", "1.3" };
 
         /// <summary>
         /// Основной конструктор. Инициализирует все сервисы (Excel, MongoDB),
         /// создаёт команды UI, загружает начальные данные (имена узлов, профили)
         /// и применяет значения по умолчанию.
         /// </summary>
-        public ViewModel(IExcelImportDialogService excelImportDialogService, Steel_structures_nodes_public_project.Calculate.Services.IExcelReader excelReader, IInteractionTableRepository interactionTableRepository, ICalculationResultRepository calculationResultRepository, WpfNodeImageService nodeImageService)
+        public ViewModel(IExcelImportDialogService excelImportDialogService, steel_structures_nodes.Calculate.Services.IExcelReader excelReader, IInteractionTableService interactionService, ICalculationResultRepository calculationResultRepository, IDataAccessFailureNotifier dataAccessFailureNotifier, IWpfNodeImageService nodeImageService)
         {
             _excelImportDialogService = excelImportDialogService ?? throw new ArgumentNullException(nameof(excelImportDialogService));
             _excelReader = excelReader ?? throw new ArgumentNullException(nameof(excelReader));
-            _interactionService = new InteractionTableService(interactionTableRepository ?? throw new ArgumentNullException(nameof(interactionTableRepository)));
+            _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
             _calculationResultRepository = calculationResultRepository ?? throw new ArgumentNullException(nameof(calculationResultRepository));
+            _dataAccessFailureNotifier = dataAccessFailureNotifier ?? throw new ArgumentNullException(nameof(dataAccessFailureNotifier));
             _nodeImageService = nodeImageService;
+            _dataAccessFailureNotifier.FailureOccurred += OnDataAccessFailure;
+
+            if (_dataAccessFailureNotifier.LastFailure is not null)
+                _status = _dataAccessFailureNotifier.LastFailure.Message;
 
             _isInitialized = false;
 
@@ -162,6 +172,11 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             OnPropertyChanged(nameof(GammaF));
         }
 
+        private void OnDataAccessFailure(object sender, DataAccessFailureEventArgs e)
+        {
+            Status = e.Message;
+        }
+
         /// <summary>Строки РСУ, загруженные пользователем (Excel/буфер обмена).</summary>
         public ObservableCollection<RsuRow> RsuRows { get; }
 
@@ -211,6 +226,16 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
                 // Do NOT update preview here (preview follows NAME only)
             }
         }
+
+        public string UserNt { get => _userNt; set { _userNt = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserNc { get => _userNc; set { _userNc = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserN { get => _userN; set { _userN = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserQy { get => _userQy; set { _userQy = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserQz { get => _userQz; set { _userQz = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserMx { get => _userMx; set { _userMx = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserMy { get => _userMy; set { _userMy = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserMz { get => _userMz; set { _userMz = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
+        public string UserMw { get => _userMw; set { _userMw = value; OnPropertyChanged(); RebuildComparisonIfNeeded(); } }
 
         public ConnectionOptionViewModel SelectedConnectionOption
         {
@@ -567,95 +592,6 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             Status = "Cleared";
         }
 
-        /// <summary>Вставляет данные РСУ из буфера обмена, заменяя существующие строки.</summary>
-        private void PasteRsu()
-        {
-            var text = System.Windows.Clipboard.GetText();
-            ReplaceRowsFromClipboard(RsuRows, text);
-            Status = "РСУ добавлены";
-        }
-
-        /// <summary>Вставляет данные РСН из буфера обмена, заменяя существующие строки.</summary>
-        private void PasteRsn()
-        {
-            var text = System.Windows.Clipboard.GetText();
-            ReplaceRowsFromClipboard(RsnRows, text);
-            Status = "РСН добавлены";
-        }
-
-        /// <summary>Добавляет данные РСУ из буфера обмена к существующим строкам.</summary>
-        private void AddRsu()
-        {
-            var text = System.Windows.Clipboard.GetText();
-            AddRowsFromClipboard(RsuRows, text);
-            Status = "RSU added";
-        }
-
-        /// <summary>Добавляет данные РСН из буфера обмена к существующим строкам.</summary>
-        private void AddRsn()
-        {
-            var text = System.Windows.Clipboard.GetText();
-            AddRowsFromClipboard(RsnRows, text);
-            Status = "RSN added";
-        }
-
-        /// <summary>Импортирует данные РСУ из файла Excel через диалог выбора файла.</summary>
-        private void ImportRsuFromExcel() => ImportFromExcel(isRsu: true);
-
-        /// <summary>Импортирует данные РСН из файла Excel через диалог выбора файла.</summary>
-        private void ImportRsnFromExcel() => ImportFromExcel(isRsu: false);
-
-        /// <summary>
-        /// Общий метод импорта данных из Excel. Открывает диалог выбора файла и листа,
-        /// считывает строки усилий и заполняет коллекцию РСУ или РСН.
-        /// </summary>
-        private void ImportFromExcel(bool isRsu)
-        {
-            try
-            {
-                if (!_excelImportDialogService.TryGetImportRequest(isRsu ? "RSU" : "RSN", out var req) || req == null)
-                    return;
-
-                var rows = _excelReader.ReadRsuRsn(req.FilePath, req.SheetName);
-
-                int count;
-                if (isRsu)
-                {
-                    RsuRows.Clear();
-                    foreach (var r in rows)
-                    {
-                        if (r == null) continue;
-                        RsuRows.Add(r as RsuRow ?? new RsuRow
-                        {
-                            DclNo = r.DclNo, Elem = r.Elem, Sect = r.Sect,
-                            N = r.N, Mx = r.Mx, My = r.My, Qz = r.Qz, Mz = r.Mz, Qy = r.Qy, Mw = r.Mw,
-                        });
-                    }
-                    count = RsuRows.Count;
-                }
-                else
-                {
-                    RsnRows.Clear();
-                    foreach (var r in rows)
-                    {
-                        if (r == null) continue;
-                        RsnRows.Add(r as RsnRow ?? new RsnRow
-                        {
-                            DclNo = r.DclNo, Elem = r.Elem, Sect = r.Sect,
-                            N = r.N, Mx = r.Mx, My = r.My, Qz = r.Qz, Mz = r.Mz, Qy = r.Qy, Mw = r.Mw,
-                        });
-                    }
-                    count = RsnRows.Count;
-                }
-
-                Status = (isRsu ? "RSU" : "RSN") + " imported: " + count;
-            }
-            catch (Exception ex)
-            {
-                Status = ex.Message;
-            }
-        }
-
         /// <summary>Циклически переключает текущий профиль балки и колонны на следующий в списке.</summary>
         private void PickElementSection()
         {
@@ -693,189 +629,6 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
 
             idx = (idx + 1) % list.Length;
             return list[idx] ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Перестраивает список кодов соединений (CONNECTION_CODE) из MongoDB
-        /// на основе выбранного имени, профиля колонны и балки.
-        /// Если профили не заданы — падает до менее строгих фильтров (как в MAUI).
-        /// </summary>
-        private void RebuildConnectionCodeItemsFromInteractionTables()
-            {
-            // Очистить текущий список кодов соединений
-            ConnectionCodeItems.Clear();
-            // Массив для загрузки кодов соединений из MongoDB с разными уровнями фильтрации
-            string[] codes;
-            try {
-                var hasColumn = !string.IsNullOrWhiteSpace(ElementSectionColumn);
-                var hasBeam = !string.IsNullOrWhiteSpace(ElementSectionBeam);
-
-                if (hasColumn && hasBeam)
-                    codes = _interactionService.LoadConnectionCodesByNameColumnAndBeam(ConnectionName, ElementSectionColumn, ElementSectionBeam);
-                else if (hasColumn)
-                    codes = _interactionService.LoadConnectionCodesByNameAndColumn(ConnectionName, ElementSectionColumn);
-                else if (hasBeam)
-                    codes = _interactionService.LoadConnectionCodesByNameAndBeam(ConnectionName, ElementSectionBeam);
-                else
-                    codes = _interactionService.LoadConnectionCodesByName(ConnectionName);
-            }
-            catch {
-                codes = Array.Empty<string>();
-            }
-
-            foreach (var c in codes)
-                ConnectionCodeItems.Add(c);
-
-            if (ConnectionCodeItems.Count > 0) {
-                _standardConnectionCode = ConnectionCodeItems[0];
-            }
-            else {
-                _standardConnectionCode = string.Empty;
-            }
-            OnPropertyChanged(nameof(StandardConnectionCode));
-        }
-
-        /// <summary>
-        /// Загружает из MongoDB списки доступных профилей колонн и балок
-        /// для выбранного имени группы узловых соединений.
-        /// </summary>
-        private void RebuildProfileListFromInteractionTables()
-        {
-            ElementSectionsBeam.Clear();
-            ElementSectionsColumn.Clear();
-
-            string[] columns;
-            try
-            {
-                columns = _interactionService.LoadDistinctProfileColumnsByName(ConnectionName);
-            }
-            catch
-            {
-                columns = Array.Empty<string>();
-            }
-            foreach (var c in columns)
-                ElementSectionsColumn.Add(c);
-
-            if (ElementSectionsColumn.Count > 0)
-            {
-                _elementSectionColumn = ElementSectionsColumn[0];
-            }
-            else
-            {
-                _elementSectionColumn = string.Empty;
-            }
-            OnPropertyChanged(nameof(ElementSectionColumn));
-
-            // Загрузить доступные балки для выбранной колонны
-            RebuildBeamListByColumn();
-        }
-
-        /// <summary>
-        /// По выбранному профилю колонны загружает доступные профили балок.
-        /// </summary>
-        private void RebuildBeamListByColumn()
-        {
-            ElementSectionsBeam.Clear();
-
-            string[] beams;
-            try
-            {
-                beams = _interactionService.LoadDistinctProfileBeamsByNameAndColumn(ConnectionName, ElementSectionColumn);
-            }
-            catch
-            {
-                beams = Array.Empty<string>();
-            }
-            foreach (var b in beams)
-                ElementSectionsBeam.Add(b);
-
-            if (ElementSectionsBeam.Count > 0)
-            {
-                _elementSectionBeam = ElementSectionsBeam[0];
-            }
-            else
-            {
-                _elementSectionBeam = string.Empty;
-            }
-            OnPropertyChanged(nameof(ElementSectionBeam));
-        }
-
-        /// <summary>
-        /// Запускает расчёт РС1: собирает входные данные (РСУ/РСН),
-        /// вызывает калькулятор, сохраняет JSON результата и загружает его обратно в UI.
-        /// </summary>
-        private void ExecuteCalculation()
-        {
-            try
-            {
-                var calc = new Calculator();
-
-                var rsu = (RsuRows ?? new ObservableCollection<RsuRow>())
-                    .Where(r => r != null)
-                    .Cast<ForceRow>()
-                    .ToList();
-
-                var rsn = (RsnRows ?? new ObservableCollection<RsnRow>())
-                    .Where(r => r != null)
-                    .Cast<ForceRow>()
-                    .ToList();
-
-                if (rsu.Count == 0 && rsn.Count == 0)
-                {
-                    Status = "Нет данных РСУ и РСН для расчёта";
-                    return;
-                }
-
-                // Масштабирование входных данных коэффициентом ?_f
-                var gf = ParseCoeff(_gammaF);
-                if (gf != 1d)
-                {
-                    rsu = ScaleForceRows(rsu, gf);
-                    rsn = ScaleForceRows(rsn, gf);
-                }
-
-                // Parse element filter
-                HashSet<string> elemFilter = null;
-                if (!string.IsNullOrWhiteSpace(ElementFilterText))
-                {
-                    elemFilter = ParseElementFilter(ElementFilterText);
-                }
-
-                // Расчёт: калькулятор считает данные и создаёт новый файл Result_vXXX.json
-                var resultDir = GetResultDir();
-                calc.CalculateAndSave(rsu, rsn, elemFilter, resultDir, out var createdFilePath);
-
-                // UI читает расчётные данные из созданного файла и формирует отчёт
-                LoadResultFromJson(createdFilePath);
-
-                // Обновляем список доступных версий
-                RebuildCalculationVersions();
-
-                var parts = new List<string>();
-                if (rsu.Count > 0) parts.Add($"РСУ={rsu.Count}");
-                if (rsn.Count > 0) parts.Add($"РСН={rsn.Count}");
-                var fileName = Path.GetFileName(createdFilePath);
-                Status = $"Расчёт выполнен ({string.Join(", ", parts)}), сохранён в {fileName}";
-                var calcStatus = Status;
-
-                // Диаграмма сравнения строится СРАЗУ из имеющихся данных (до блокирующего MongoDB-запроса)
-                if (_hasCalcData)
-                    BuildComparisonChart(_lastCalcNPlus, _lastCalcNMinus, _lastCalcQAbs, _lastCalcQzAbs, _lastCalcTAbs, _lastCalcMAbs, _lastCalcMoAbs, _lastCalcMwAbs);
-
-                // Сохранение результата в MongoDB асинхронно (не блокирует UI)
-                SaveResultToMongo(createdFilePath, gf, rsu.Count, rsn.Count, elemFilter);
-
-                // Прокрутка к результатам — выполняется ДО потенциально блокирующего MongoDB-запроса
-                CalculationCompleted?.Invoke();
-
-                // Обновление данных узла из MongoDB (синхронный запрос — может блокировать,
-                // но график и прокрутка уже отработали выше)
-                UpdateStandardNodeFromJsonAsync(calcStatus);
-            }
-            catch (Exception ex)
-            {
-                Status = ex.Message;
-            }
         }
 
         /// <summary>
@@ -1198,6 +951,8 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
                         _lastStandardNodeData = task.Result;
                         ApplyStandardNodeData(task.Result);
 
+                        SyncProfilePickersToNodeData(task.Result);
+
                         // Обновить диаграмму: табличные значения всегда, расчётные — если есть
                         BuildComparisonChart(_lastCalcNPlus, _lastCalcNMinus, _lastCalcQAbs, _lastCalcQzAbs, _lastCalcTAbs, _lastCalcMAbs, _lastCalcMoAbs, _lastCalcMwAbs);
                     }
@@ -1215,10 +970,13 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         {
             Func<double?, string> f = StandardNodeInteractionViewModel.F;
             StandardNode.ClearAll();
-
-            StandardNode.ProfileBeam = data.ProfileBeam ?? string.Empty;
-            StandardNode.ProfileColumn = data.ProfileColumn ?? string.Empty;
-
+            //Тип узла
+            StandardNode.TypeNode = data.TypeNode ?? string.Empty;
+            //Марка
+            StandardNode.TableBrand = data.TableBrand ?? string.Empty;
+            // Пояснения из базы данных
+            NodeExplanation = data.Explanations ?? string.Empty;
+            #region Внутренние усилия
             StandardNode.Nt = f(data.Nt ?? data.N);
             StandardNode.Nc = f(data.Nc ?? (data.N.HasValue ? -Math.Abs(data.N.Value) : (double?)null));
             StandardNode.N = f(data.N);
@@ -1228,7 +986,10 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             StandardNode.Mw = f(data.Mw);
             StandardNode.My = f(data.My);
             StandardNode.Mneg = f(data.Mneg);
-            StandardNode.Mz = f(data.Mz);
+            StandardNode.Mz = f(data.Mz); 
+            #endregion
+            #region Коэффициенты взаимодействия
+
             StandardNode.Alpha = f(data.Alpha);
             StandardNode.Beta = f(data.Beta);
             StandardNode.Gamma = f(data.Gamma);
@@ -1236,36 +997,17 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             StandardNode.Epsilon = f(data.Epsilon);
             StandardNode.Lambda = f(data.Lambda);
             StandardNode.Variable = f(data.Variable);
+            #endregion
+            #region Жесткость 
             StandardNode.Sj = f(data.Sj);
             StandardNode.Sjo = f(data.Sjo);
-            StandardNode.SectionH = f(data.SectionH);
-            StandardNode.SectionB = f(data.SectionB);
-            StandardNode.SectionS = f(data.SectionS);
-            StandardNode.SectionT = f(data.SectionT);
-
-            StandardNode.ColumnH = f(data.ColumnH);
-            StandardNode.ColumnB = f(data.ColumnB);
-            StandardNode.ColumnS = f(data.ColumnS);
-            StandardNode.ColumnT = f(data.ColumnT);
-
-            StandardNode.PlateH = f(data.PlateH);
-            StandardNode.PlateB = f(data.PlateB);
-            StandardNode.PlateT = f(data.PlateT);
-
-            StandardNode.FlangeH = f(data.FlangeH);
-            StandardNode.FlangeB = f(data.FlangeB);
-            StandardNode.FlangeT = f(data.FlangeT);
-            StandardNode.FlangeLb = f(data.FlangeLb);
-
-            StandardNode.StiffTr1 = f(data.StiffTr1);
-            StandardNode.StiffTr2 = f(data.StiffTr2);
-            StandardNode.StiffTbp = f(data.StiffTbp);
-            StandardNode.StiffTg = f(data.StiffTg);
-            StandardNode.StiffTf = f(data.StiffTf);
-            StandardNode.StiffLh = f(data.StiffLh);
-            StandardNode.StiffHh = f(data.StiffHh);
-            StandardNode.StiffTwp = f(data.StiffTwp);
-
+            #endregion
+            #region Балки
+            StandardNode.ProfileBeam = data.ProfileBeam ?? string.Empty;
+            StandardNode.BeamH = f(data.BeamH);
+            StandardNode.BeamB = f(data.BeamB);
+            StandardNode.BeamS = f(data.BeamS);
+            StandardNode.BeamT = f(data.BeamT);
             StandardNode.BeamA = f(data.BeamA);
             StandardNode.BeamP = f(data.BeamP);
             StandardNode.BeamIz = f(data.BeamIz);
@@ -1279,7 +1021,13 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             StandardNode.Beamiz = f(data.Beamiz);
             StandardNode.Beamiy = f(data.Beamiy);
             StandardNode.BeamXo = f(data.BeamXo);
-
+            #endregion
+            #region Колонны
+            StandardNode.ProfileColumn = data.ProfileColumn ?? string.Empty;
+            StandardNode.ColumnH = f(data.ColumnH);
+            StandardNode.ColumnB = f(data.ColumnB);
+            StandardNode.ColumnS = f(data.ColumnS);
+            StandardNode.ColumnT = f(data.ColumnT);
             StandardNode.ColumnA = f(data.ColumnA);
             StandardNode.ColumnP = f(data.ColumnP);
             StandardNode.ColumnIz = f(data.ColumnIz);
@@ -1294,7 +1042,30 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             StandardNode.Columniy = f(data.Columniy);
             StandardNode.ColumnXo = f(data.ColumnXo);
             StandardNode.ColumnYo = f(data.ColumnYo);
+            #endregion
+            #region Пластины
+            StandardNode.PlateH = f(data.PlateH);
+            StandardNode.PlateB = f(data.PlateB);
+            StandardNode.PlateT = f(data.PlateT);
+            #endregion
+            #region Фланец
+            StandardNode.FlangeH = f(data.FlangeH);
+            StandardNode.FlangeB = f(data.FlangeB);
+            StandardNode.FlangeT = f(data.FlangeT);
+            StandardNode.FlangeLb = f(data.FlangeLb);
+            #endregion
+            #region Ребра
 
+            StandardNode.StiffTr1 = f(data.StiffTr1);
+            StandardNode.StiffTr2 = f(data.StiffTr2);
+            StandardNode.StiffTbp = f(data.StiffTbp);
+            StandardNode.StiffTg = f(data.StiffTg);
+            StandardNode.StiffTf = f(data.StiffTf);
+            StandardNode.StiffLh = f(data.StiffLh);
+            StandardNode.StiffHh = f(data.StiffHh);
+            StandardNode.StiffTwp = f(data.StiffTwp);
+            #endregion
+            #region Болты
             StandardNode.BoltDiameter = f(data.BoltDiameter);
             StandardNode.BoltCount = data.BoltCount?.ToString() ?? "0";
             StandardNode.BoltRows = data.BoltRows?.ToString() ?? "0";
@@ -1320,24 +1091,42 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             StandardNode.BoltD1 = cx != null && cx.Length > 0 ? f(cx[0]) : string.Empty;
             StandardNode.BoltD2 = cx != null && cx.Length > 1 ? f(cx[1]) : string.Empty;
 
+            #endregion
+            #region Сварка
             StandardNode.WeldKf = StandardNodeInteractionViewModel.FormatArray(data.WeldKf);
 
             var wk = data.WeldKf;
-            StandardNode.WeldKf1 = wk != null && wk.Length > 0 ? f(wk[0]) : string.Empty;
-            StandardNode.WeldKf2 = wk != null && wk.Length > 1 ? f(wk[1]) : string.Empty;
-            StandardNode.WeldKf3 = wk != null && wk.Length > 2 ? f(wk[2]) : string.Empty;
-            StandardNode.WeldKf4 = wk != null && wk.Length > 3 ? f(wk[3]) : string.Empty;
-            StandardNode.WeldKf5 = wk != null && wk.Length > 4 ? f(wk[4]) : string.Empty;
-            StandardNode.WeldKf6 = wk != null && wk.Length > 5 ? f(wk[5]) : string.Empty;
-            StandardNode.WeldKf7 = wk != null && wk.Length > 6 ? f(wk[6]) : string.Empty;
-            StandardNode.WeldKf8 = wk != null && wk.Length > 7 ? f(wk[7]) : string.Empty;
-            StandardNode.WeldKf9 = wk != null && wk.Length > 8 ? f(wk[8]) : string.Empty;
-            StandardNode.WeldKf10 = wk != null && wk.Length > 9 ? f(wk[9]) : string.Empty;
+            StandardNode.WeldKf1 = wk != null && wk.Length > 0 ? StandardNodeInteractionViewModel.F(wk[0]) : string.Empty;
+            StandardNode.WeldKf2 = wk != null && wk.Length > 1 ? StandardNodeInteractionViewModel.F(wk[1]) : string.Empty;
+            StandardNode.WeldKf3 = wk != null && wk.Length > 2 ? StandardNodeInteractionViewModel.F(wk[2]) : string.Empty;
+            StandardNode.WeldKf4 = wk != null && wk.Length > 3 ? StandardNodeInteractionViewModel.F(wk[3]) : string.Empty;
+            StandardNode.WeldKf5 = wk != null && wk.Length > 4 ? StandardNodeInteractionViewModel.F(wk[4]) : string.Empty;
+            StandardNode.WeldKf6 = wk != null && wk.Length > 5 ? StandardNodeInteractionViewModel.F(wk[5]) : string.Empty;
+            StandardNode.WeldKf7 = wk != null && wk.Length > 6 ? StandardNodeInteractionViewModel.F(wk[6]) : string.Empty;
+            StandardNode.WeldKf8 = wk != null && wk.Length > 7 ? StandardNodeInteractionViewModel.F(wk[7]) : string.Empty;
+            StandardNode.WeldKf9 = wk != null && wk.Length > 8 ? StandardNodeInteractionViewModel.F(wk[8]) : string.Empty;
+            StandardNode.WeldKf10 = wk != null && wk.Length > 9 ? StandardNodeInteractionViewModel.F(wk[9]) : string.Empty; 
+            #endregion
 
-            StandardNode.TableBrand = data.TableBrand ?? string.Empty;
+        }
 
-            // Пояснения из базы данных
-            NodeExplanation = data.Explanations ?? string.Empty;
+        /// <summary>
+        /// Sync column/beam pickers to match loaded node data.
+        /// </summary>
+        private void SyncProfilePickersToNodeData(StandardNodeData data)
+        {
+            var savedInit = _isInitialized;
+            _isInitialized = false;
+
+            var col = data.ProfileColumn;
+            if (!string.IsNullOrWhiteSpace(col) && ElementSectionsColumn.Contains(col))
+                ElementSectionColumn = col;
+
+            var beam = data.ProfileBeam;
+            if (!string.IsNullOrWhiteSpace(beam) && ElementSectionsBeam.Contains(beam))
+                ElementSectionBeam = beam;
+
+            _isInitialized = savedInit;
         }
 
         /// <summary>
@@ -1409,7 +1198,7 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
                     DclNo = r.DclNo,
                     Elem = r.Elem,
                     Sect = r.Sect,
-                    N  = ScaleValue(r.N,  gf),
+                    N = ScaleValue(r.N, gf),
                     Mx = ScaleValue(r.Mx, gf),
                     My = ScaleValue(r.My, gf),
                     Qz = ScaleValue(r.Qz, gf),
@@ -1433,6 +1222,15 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             return s;
         }
 
+        private static double? ParseNullableValue(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return null;
+            var t = s.Trim().Replace(',', '.');
+            if (double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
+                return d;
+            return null;
+        }
+
         /// <summary>Форматирует числовое значение (3 знака) или возвращает тире «—», если значение отсутствует.</summary>
         private static string FormatOrDash(double? v)
         {
@@ -1452,13 +1250,24 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             // в ExecuteCalculation), поэтому здесь повторное умножение НЕ требуется.
 
             // Fallback: если AlbumNt отсутствует, но N есть > AlbumNt = N (аналогично для AlbumN)
-            var tableNt = _lastStandardNodeData?.Nt ?? _lastStandardNodeData?.N;
-            var tableNc = _lastStandardNodeData?.Nc ?? (_lastStandardNodeData?.N.HasValue == true ? -Math.Abs(_lastStandardNodeData.N.Value) : (double?)null);
+            var tableNt = _lastStandardNodeData?.Nt ?? _lastStandardNodeData?.Nt;
+            var tableNc = _lastStandardNodeData?.Nc ?? (_lastStandardNodeData?.Nc.HasValue == true ? -Math.Abs(_lastStandardNodeData.Nc.Value) : (double?)null);
+            var tableN = _lastStandardNodeData?.N ?? (_lastStandardNodeData?.N.HasValue == true ? -Math.Abs(_lastStandardNodeData.N.Value) : (double?)null);
             var tableMx = _lastStandardNodeData?.Mx ?? _lastStandardNodeData?.T;
 
+            var userNt = ParseNullableValue(UserNt) ?? ParseNullableValue(UserN);
+            var userNc = ParseNullableValue(UserNc) ?? ParseNullableValue(UserN);
+            var userQy = ParseNullableValue(UserQy);
+            var userQz = ParseNullableValue(UserQz);
+            var userMx = ParseNullableValue(UserMx);
+            var userMy = ParseNullableValue(UserMy);
+            var userMz = ParseNullableValue(UserMz);
+            var userMw = ParseNullableValue(UserMw);
+
             var items = new List<ComparisonChartItem>();
-            AddChartItem(items, "AlbumNt (растяж.), кН", tableNt, nPlus);
-            AddChartItem(items, "AlbumN (сжат.), кН", tableNc, nMinus.HasValue ? Math.Abs(nMinus.Value) : (double?)null);
+            AddChartItem(items, "Nt (растяж.), кН", tableNt, nPlus);
+            AddChartItem(items, "Nc (сжат.), кН", tableNc, nMinus.HasValue ? Math.Abs(nMinus.Value) : (double?)null);
+            AddChartItem(items, "N (+/-), кН", tableN, nMinus.HasValue ? Math.Abs(nMinus.Value) : (double?)null);
             AddChartItem(items, "Qy, кН", _lastStandardNodeData?.Qy, qAbs);
             AddChartItem(items, "Qz, кН", _lastStandardNodeData?.Qz, qzAbs);
             AddChartItem(items, "Mx, кН·м", tableMx, tAbs);
@@ -1472,12 +1281,14 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             {
                 if (it.TableValue > maxVal) maxVal = it.TableValue;
                 if (it.CalcValue > maxVal) maxVal = it.CalcValue;
+                if (it.UserValue > maxVal) maxVal = it.UserValue;
             }
 
             foreach (var it in items)
             {
                 it.TableBarWidth = it.TableValue / maxVal * maxBarWidth;
                 it.CalcBarWidth = it.CalcValue / maxVal * maxBarWidth;
+                it.UserBarWidth = it.UserValue / maxVal * maxBarWidth;
                 ComparisonItems.Add(it);
             }
         }
@@ -1488,14 +1299,22 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         /// </summary>
         private static void AddChartItem(List<ComparisonChartItem> items, string label, double? tableVal, double? calcVal)
         {
+            AddChartItem(items, label, tableVal, calcVal, null);
+        }
+
+        private static void AddChartItem(List<ComparisonChartItem> items, string label, double? tableVal, double? calcVal, double? userVal)
+        {
             var tv = tableVal.HasValue ? Math.Abs(tableVal.Value) : 0;
             var cv = calcVal.HasValue ? Math.Abs(calcVal.Value) : 0;
+            var uv = userVal.HasValue ? Math.Abs(userVal.Value) : 0;
+
+            var maxCompared = Math.Max(cv, uv);
 
             string ratioText;
             bool isOver;
-            if (!calcVal.HasValue || (tv == 0 && cv == 0))
+            if ((!calcVal.HasValue && !userVal.HasValue) || (tv == 0 && cv == 0 && uv == 0))
             {
-                // Нет расчётных данных или оба значения нулевые — сравнение невозможно
+                // Нет расчётных/пользовательских данных или все значения нулевые — сравнение невозможно
                 ratioText = "—";
                 isOver = false;
             }
@@ -1506,9 +1325,9 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             }
             else
             {
-                var pct = cv / tv * 100;
+                var pct = maxCompared / tv * 100;
                 ratioText = pct.ToString("0.#", CultureInfo.InvariantCulture) + "%";
-                isOver = cv > tv;
+                isOver = maxCompared > tv;
             }
 
             items.Add(new ComparisonChartItem
@@ -1516,8 +1335,10 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
                 Label = label,
                 TableValue = tv,
                 CalcValue = cv,
+                UserValue = uv,
                 TableText = tv == 0 ? "—" : tv.ToString("0.###", CultureInfo.InvariantCulture),
                 CalcText = cv == 0 ? "—" : cv.ToString("0.###", CultureInfo.InvariantCulture),
+                UserText = uv == 0 ? "—" : uv.ToString("0.###", CultureInfo.InvariantCulture),
                 RatioText = ratioText,
                 IsOverLimit = isOver,
             });
@@ -1572,228 +1393,22 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             return rt;
         }
 
-        /// <summary>
-        /// Копирует таблицу IDEA StatiCA в буфер обмена (TSV-формат, совместимый с Excel).
-        /// </summary>
-        private void CopyIdeaToClipboard()
-        {
-            if (IdeaRows.Count == 0)
-            {
-                Status = "Нет данных для копирования";
-                return;
-            }
-
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("Критерий\tN, kN\tVy, kN\tVz, kN\tMx, kN*m\tMy, kN*m\tMz, kN*m");
-            foreach (var r in IdeaRows)
-            {
-                sb.Append(r.RowType ?? "");
-                sb.Append('\t'); sb.Append(FmtCell(r.N));
-                sb.Append('\t'); sb.Append(FmtCell(r.Vy));
-                sb.Append('\t'); sb.Append(FmtCell(r.Vz));
-                sb.Append('\t'); sb.Append(FmtCell(r.Mx));
-                sb.Append('\t'); sb.Append(FmtCell(r.My));
-                sb.Append('\t'); sb.Append(FmtCell(r.Mz));
-                sb.AppendLine();
-            }
-
-            System.Windows.Clipboard.SetText(sb.ToString());
-            Status = "Данные IDEA StatiCA скопированы в буфер обмена";
-        }
-
-        /// <summary>Форматирует числовое значение ячейки (5 знаков) или пустую строку, если значение отсутствует.</summary>
-        private static string FmtCell(double? v)
-        {
-            if (!v.HasValue) return "";
-            return v.Value.ToString("0.#####", CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        /// Копирует таблицу результатов анализа (MAX-строки) в буфер обмена (TSV).
-        /// </summary>
-        private void CopyAnalysisToClipboard()
-        {
-            if (AnalysisRows.Count == 0)
-            {
-                Status = "Нет данных для копирования";
-                return;
-            }
-
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("Критерий\tКомбинации нагрузок\tЭлемент\tN, кН\tNt, кН\tNc, кН\tQy, кН\tQz, кН\tMx, кН*м\tMy, кН*м\tMz, кН*м\tMw, кН*м?\tu\t?");
-            foreach (var r in AnalysisRows)
-            {
-                sb.Append(r.RowType ?? "");
-                sb.Append('\t'); sb.Append(r.LoadCombination ?? "");
-                sb.Append('\t'); sb.Append(r.ElementText ?? "");
-                sb.Append('\t'); sb.Append(FmtCell(r.N));
-                sb.Append('\t'); sb.Append(FmtCell(r.Nt));
-                sb.Append('\t'); sb.Append(FmtCell(r.Nc));
-                sb.Append('\t'); sb.Append(FmtCell(r.Qy));
-                sb.Append('\t'); sb.Append(FmtCell(r.Qz));
-                sb.Append('\t'); sb.Append(FmtCell(r.Mx));
-                sb.Append('\t'); sb.Append(FmtCell(r.My));
-                sb.Append('\t'); sb.Append(FmtCell(r.Mz));
-                sb.Append('\t'); sb.Append(FmtCell(r.Mw));
-                sb.Append('\t'); sb.Append(FmtCell(r.U));
-                sb.Append('\t'); sb.Append(FmtCell(r.Psi));
-                sb.AppendLine();
-            }
-
-            System.Windows.Clipboard.SetText(sb.ToString());
-            Status = "Таблица анализа скопирована в буфер обмена";
-        }
-
-        /// <summary>
-        /// Копирует сводку результатов расчёта в буфер обмена (TSV).
-        /// </summary>
-        private void CopyResultsToClipboard()
-        {
-            if (Results.Count == 0)
-            {
-                Status = "Нет данных для копирования";
-                return;
-            }
-
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("Параметр\tЗначение");
-            foreach (var r in Results)
-            {
-                sb.Append(r.Key ?? "");
-                sb.Append('\t');
-                sb.Append(r.Value ?? "");
-                sb.AppendLine();
-            }
-
-            System.Windows.Clipboard.SetText(sb.ToString());
-            Status = "Сводка результатов скопирована в буфер обмена";
-        }
-
-        /// <summary>
-        /// Копирует все данные узлового соединения в буфер обмена (текстовый формат).
-        /// </summary>
-        private void CopyNodeDataToClipboard()
-        {
-            var n = StandardNode;
-            if (n == null || string.IsNullOrWhiteSpace(n.ProfileBeam))
-            {
-                Status = "Нет данных узла для копирования";
-                return;
-            }
-
-            var sb = new System.Text.StringBuilder();
-            void Line(string label, string value)
-            {
-                if (!string.IsNullOrWhiteSpace(value) && value != "0")
-                    sb.AppendLine($"{label}\t{value}");
-            }
-
-            if (!string.IsNullOrWhiteSpace(n.TableBrand))
-                sb.AppendLine($"Марка таблицы\t{n.TableBrand}");
-
-            sb.AppendLine("--- Геометрия балки ---");
-            Line("Профиль балки", n.ProfileBeam);
-            Line("H, мм", n.SectionH); Line("B, мм", n.SectionB);
-            Line("s, мм", n.SectionS); Line("t, мм", n.SectionT);
-            Line("A, см?", n.BeamA); Line("P, кг/м", n.BeamP);
-            Line("Ix, см?", n.BeamIx); Line("Iy, см?", n.BeamIy); Line("Iz, см?", n.BeamIz);
-            Line("Wy, см?", n.BeamWy); Line("Wz, см?", n.BeamWz); Line("Wx, см?", n.BeamWx);
-            Line("Sy, см?", n.BeamSy); Line("Sz, см?", n.BeamSz);
-            Line("iy, см", n.Beamiy); Line("iz, см", n.Beamiz); Line("xo, см", n.BeamXo);
-
-            sb.AppendLine("--- Геометрия колонны ---");
-            Line("Профиль колонны", n.ProfileColumn);
-            Line("H, мм", n.ColumnH); Line("B, мм", n.ColumnB);
-            Line("s, мм", n.ColumnS); Line("t, мм", n.ColumnT);
-            Line("A, см?", n.ColumnA); Line("P, кг/м", n.ColumnP);
-            Line("Ix, см?", n.ColumnIx); Line("Iy, см?", n.ColumnIy); Line("Iz, см?", n.ColumnIz);
-            Line("Wy, см?", n.ColumnWy); Line("Wz, см?", n.ColumnWz); Line("Wx, см?", n.ColumnWx);
-            Line("Sy, см?", n.ColumnSy); Line("Sz, см?", n.ColumnSz);
-            Line("iy, см", n.Columniy); Line("iz, см", n.Columniz);
-            Line("xo, см", n.ColumnXo); Line("yo, см", n.ColumnYo);
-
-            sb.AppendLine("--- Пластина / Фланец / Рёбра ---");
-            Line("Пластина H, мм", n.PlateH); Line("Пластина B, мм", n.PlateB); Line("Пластина t, мм", n.PlateT);
-            Line("Фланец H, мм", n.FlangeH); Line("Фланец B, мм", n.FlangeB);
-            Line("Фланец t, мм", n.FlangeT); Line("Фланец Lb, мм", n.FlangeLb);
-            Line("tr1, мм", n.StiffTr1); Line("tr2, мм", n.StiffTr2);
-            Line("tbp, мм", n.StiffTbp); Line("tg, мм", n.StiffTg);
-            Line("tf, мм", n.StiffTf); Line("twp, мм", n.StiffTwp);
-            Line("Lh, мм", n.StiffLh); Line("Hh, мм", n.StiffHh);
-
-            sb.AppendLine("--- Несущая способность ---");
-            Line("Nt, кН", n.Nt); Line("Nc, кН", n.Nc); Line("N, кН", n.N);
-            Line("Mneg, кН·м", n.Mneg);
-            Line("Qy, кН", n.Qy); Line("Qz, кН", n.Qz);
-            Line("Mx, кН·м", n.Mx); Line("My, кН·м", n.My);
-            Line("Mz, кН·м", n.Mz); Line("Mw, кН·м?", n.Mw);
-
-            sb.AppendLine("--- Жёсткость ---");
-            Line("Sj, кН·м/рад", n.Sj); Line("Sjo, кН·м/рад", n.Sjo); Line("var", n.Variable);
-
-            sb.AppendLine("--- Коэффициенты взаимодействия ---");
-            Line("?", n.Alpha); Line("?", n.Beta); Line("?", n.Gamma);
-            Line("?", n.Delta); Line("?", n.Epsilon); Line("?", n.Lambda);
-
-            sb.AppendLine("--- Болты ---");
-            Line("Диаметр, мм", n.BoltDiameter); Line("Кол-во болтов", n.BoltCount);
-            Line("Число рядов", n.BoltRows); Line("Версия", n.BoltVersion);
-            Line("Коорд. Y (e1,p1…)", n.BoltCoordY);
-            Line("Коорд. X (d1,d2)", n.BoltCoordX);
-            Line("Коорд. Z", n.BoltCoordZ);
-
-            sb.AppendLine("--- Сварка ---");
-            Line("Катеты швов kf", n.WeldKf);
-
-            System.Windows.Clipboard.SetText(sb.ToString());
-            Status = "Данные узла скопированы в буфер обмена";
-        }
-
-        /// <summary>Очищает коллекцию РСН и заполняет её строками, распарсенными из текста буфера обмена.</summary>
-        private static void ReplaceRowsFromClipboard(ObservableCollection<RsnRow> target, string text)
-        {
-            target.Clear();
-            AddRowsFromClipboard(target, text);
-        }
-
-        /// <summary>Добавляет строки РСН из текста буфера обмена к существующей коллекции.</summary>
-        private static void AddRowsFromClipboard(ObservableCollection<RsnRow> target, string text)
-        {
-            foreach (var row in ClipboardRowParser.ParseRows(text))
-                target.Add(row);
-        }
-
-        /// <summary>Очищает коллекцию РСУ и заполняет её строками, распарсенными из текста буфера обмена.</summary>
-        private static void ReplaceRowsFromClipboard(ObservableCollection<RsuRow> target, string text)
-        {
-            target.Clear();
-            AddRowsFromClipboard(target, text);
-        }
-
-        /// <summary>Добавляет строки РСУ из текста буфера обмена, преобразуя в RsuRow.</summary>
-        private static void AddRowsFromClipboard(ObservableCollection<RsuRow> target, string text)
-        {
-            foreach (var row in ClipboardRowParser.ParseRows(text))
-                target.Add(new RsuRow
-                {
-                    DclNo = row.DclNo,
-                    Elem = row.Elem,
-                    Sect = row.Sect,
-                    N = row.N,
-                    Mx = row.Mx,
-                    My = row.My,
-                    Qz = row.Qz,
-                    Mz = row.Mz,
-                    Qy = row.Qy,
-                    Mw = row.Mw
-                });
-        }
     }
 
     public sealed class StandardNodeInteractionViewModel : ViewModelBase
     {
-        private string _profileBeam;
-        private string _profileColumn;
+        #region Об узле
+        //Тип узла(Rigid Joint - жесткое соединение, Hinged Joint - шарнирное соединение)
+        private string _typeNode;
+        private string _tableBrand;
+        private string _variable;
+        public string TypeNode { get => _typeNode; set { _typeNode = value; OnPropertyChanged(); } }
+        public string TableBrand { get => _tableBrand; set { _tableBrand = value; OnPropertyChanged(); } }
+        public string Variable { get => _variable; set { _variable = value; OnPropertyChanged(); } }
+
+        #endregion
+        #region Внутренние усилия
+        //Внутренние усилия
         private string _nt;
         private string _nc;
         private string _n;
@@ -1804,43 +1419,45 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         private string _my;
         private string _mneg;
         private string _mz;
+        public string Nt { get => _nt; set { _nt = value; OnPropertyChanged(); } }
+        public string Nc { get => _nc; set { _nc = value; OnPropertyChanged(); } }
+        public string N { get => _n; set { _n = value; OnPropertyChanged(); } }
+        public string Qy { get => _qy; set { _qy = value; OnPropertyChanged(); } }
+        public string Qz { get => _qz; set { _qz = value; OnPropertyChanged(); } }
+        public string Mx { get => _mx; set { _mx = value; OnPropertyChanged(); } }
+        public string Mw { get => _mw; set { _mw = value; OnPropertyChanged(); } }
+        public string My { get => _my; set { _my = value; OnPropertyChanged(); } }
+        public string Mneg { get => _mneg; set { _mneg = value; OnPropertyChanged(); } }
+        public string Mz { get => _mz; set { _mz = value; OnPropertyChanged(); } } 
+        #endregion
+        #region Жёсткость
+        //Жёсткость
+        private string _sj;
+        private string _sjo;
+        public string Sj { get => _sj; set { _sj = value; OnPropertyChanged(); } }
+        public string Sjo { get => _sjo; set { _sjo = value; OnPropertyChanged(); } } 
+        #endregion
+        #region Коэффициенты взаимодействия
+        //Коэффициенты взаимодействия
         private string _alpha;
         private string _beta;
         private string _gamma;
         private string _delta;
-        private string _epsilon;
         private string _lambda;
-        private string _variable;
-        private string _sj;
-        private string _sjo;
-        private string _sectionH;
-        private string _sectionB;
-        private string _sectionS;
-        private string _sectionT;
-
-        private string _columnH;
-        private string _columnB;
-        private string _columnS;
-        private string _columnT;
-
-        private string _plateH;
-        private string _plateB;
-        private string _plateT;
-
-        private string _flangeH;
-        private string _flangeB;
-        private string _flangeT;
-        private string _flangeLb;
-
-        private string _stiffTr1;
-        private string _stiffTr2;
-        private string _stiffTbp;
-        private string _stiffTg;
-        private string _stiffTf;
-        private string _stiffLh;
-        private string _stiffHh;
-        private string _stiffTwp;
-
+        private string _epsilon;
+        public string Alpha { get => _alpha; set { _alpha = value; OnPropertyChanged(); } }
+        public string Beta { get => _beta; set { _beta = value; OnPropertyChanged(); } }
+        public string Gamma { get => _gamma; set { _gamma = value; OnPropertyChanged(); } }
+        public string Delta { get => _delta; set { _delta = value; OnPropertyChanged(); } }
+        public string Epsilon { get => _epsilon; set { _epsilon = value; OnPropertyChanged(); } }
+        public string Lambda { get => _lambda; set { _lambda = value; OnPropertyChanged(); } }
+        #endregion
+        #region Профиль балки
+        private string _profileBeam;
+        private string _beamH;
+        private string _beamB;
+        private string _beamS;
+        private string _beamT;
         private string _beamA;
         private string _beamP;
         private string _beamIz;
@@ -1855,6 +1472,33 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         private string _beamiy;
         private string _beamXo;
 
+        /// <summary>Имя профиля балки (например, <c>30Б2</c>).</summary>
+        public string ProfileBeam { get => _profileBeam; set { _profileBeam = value; OnPropertyChanged(); } }
+        public string BeamH { get => _beamH; set { _beamH = value; OnPropertyChanged(); } }
+        public string BeamB { get => _beamB; set { _beamB = value; OnPropertyChanged(); } }
+        public string BeamS { get => _beamS; set { _beamS = value; OnPropertyChanged(); } }
+        public string BeamT { get => _beamT; set { _beamT = value; OnPropertyChanged(); } }
+        public string BeamA { get => _beamA; set { _beamA = value; OnPropertyChanged(); } }
+        public string BeamP { get => _beamP; set { _beamP = value; OnPropertyChanged(); } }
+        public string BeamIz { get => _beamIz; set { _beamIz = value; OnPropertyChanged(); } }
+        public string BeamIy { get => _beamIy; set { _beamIy = value; OnPropertyChanged(); } }
+        public string BeamIx { get => _beamIx; set { _beamIx = value; OnPropertyChanged(); } }
+        public string BeamWz { get => _beamWz; set { _beamWz = value; OnPropertyChanged(); } }
+        public string BeamWy { get => _beamWy; set { _beamWy = value; OnPropertyChanged(); } }
+        public string BeamWx { get => _beamWx; set { _beamWx = value; OnPropertyChanged(); } }
+        public string BeamSz { get => _beamSz; set { _beamSz = value; OnPropertyChanged(); } }
+        public string BeamSy { get => _beamSy; set { _beamSy = value; OnPropertyChanged(); } }
+        public string Beamiz { get => _beamiz; set { _beamiz = value; OnPropertyChanged(); } }
+        public string Beamiy { get => _beamiy; set { _beamiy = value; OnPropertyChanged(); } }
+        public string BeamXo { get => _beamXo; set { _beamXo = value; OnPropertyChanged(); } } 
+        #endregion
+        #region Профиль колонны
+        //Профиль колонны
+        private string _profileColumn;
+        private string _columnH;
+        private string _columnB;
+        private string _columnS;
+        private string _columnT;
         private string _columnA;
         private string _columnP;
         private string _columnIz;
@@ -1869,112 +1513,12 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         private string _columniy;
         private string _columnXo;
         private string _columnYo;
-
-        private string _boltVersion;
-        private string _boltCoordZ;
-        private string _tableBrand;
-
-        private string _boltDiameter;
-        private string _boltCount;
-        private string _boltRows;
-        private string _boltCoordY;
-        private string _boltCoordX;
-
-        private string _boltE1;
-        private string _boltP1;
-        private string _boltP2;
-        private string _boltP3;
-        private string _boltP4;
-        private string _boltP5;
-        private string _boltP6;
-        private string _boltP7;
-        private string _boltP8;
-        private string _boltP9;
-        private string _boltP10;
-        private string _boltD1;
-        private string _boltD2;
-
-        private string _weldKf;
-        private string _weldKf1;
-        private string _weldKf2;
-        private string _weldKf3;
-        private string _weldKf4;
-        private string _weldKf5;
-        private string _weldKf6;
-        private string _weldKf7;
-        private string _weldKf8;
-        private string _weldKf9;
-        private string _weldKf10;
-
-        /// <summary>Имя профиля балки (например, <c>30Б2</c>).</summary>
-        public string ProfileBeam { get => _profileBeam; set { _profileBeam = value; OnPropertyChanged(); } }
-
         /// <summary>Имя профиля колонны (например, <c>30К1</c>).</summary>
         public string ProfileColumn { get => _profileColumn; set { _profileColumn = value; OnPropertyChanged(); } }
-
-        public string Nt { get => _nt; set { _nt = value; OnPropertyChanged(); } }
-        public string Nc { get => _nc; set { _nc = value; OnPropertyChanged(); } }
-        public string N { get => _n; set { _n = value; OnPropertyChanged(); } }
-        public string Qy { get => _qy; set { _qy = value; OnPropertyChanged(); } }
-        public string Qz { get => _qz; set { _qz = value; OnPropertyChanged(); } }
-        public string Mx { get => _mx; set { _mx = value; OnPropertyChanged(); } }
-        public string Mw { get => _mw; set { _mw = value; OnPropertyChanged(); } }
-        public string My { get => _my; set { _my = value; OnPropertyChanged(); } }
-        public string Mneg { get => _mneg; set { _mneg = value; OnPropertyChanged(); } }
-        public string Mz { get => _mz; set { _mz = value; OnPropertyChanged(); } }
-
-        public string Alpha { get => _alpha; set { _alpha = value; OnPropertyChanged(); } }
-        public string Beta { get => _beta; set { _beta = value; OnPropertyChanged(); } }
-        public string Gamma { get => _gamma; set { _gamma = value; OnPropertyChanged(); } }
-        public string Delta { get => _delta; set { _delta = value; OnPropertyChanged(); } }
-        public string Epsilon { get => _epsilon; set { _epsilon = value; OnPropertyChanged(); } }
-        public string Lambda { get => _lambda; set { _lambda = value; OnPropertyChanged(); } }
-
-        public string Variable { get => _variable; set { _variable = value; OnPropertyChanged(); } }
-        public string Sj { get => _sj; set { _sj = value; OnPropertyChanged(); } }
-        public string Sjo { get => _sjo; set { _sjo = value; OnPropertyChanged(); } }
-        public string SectionH { get => _sectionH; set { _sectionH = value; OnPropertyChanged(); } }
-        public string SectionB { get => _sectionB; set { _sectionB = value; OnPropertyChanged(); } }
-        public string SectionS { get => _sectionS; set { _sectionS = value; OnPropertyChanged(); } }
-        public string SectionT { get => _sectionT; set { _sectionT = value; OnPropertyChanged(); } }
-
         public string ColumnH { get => _columnH; set { _columnH = value; OnPropertyChanged(); } }
         public string ColumnB { get => _columnB; set { _columnB = value; OnPropertyChanged(); } }
         public string ColumnS { get => _columnS; set { _columnS = value; OnPropertyChanged(); } }
         public string ColumnT { get => _columnT; set { _columnT = value; OnPropertyChanged(); } }
-
-        public string PlateH { get => _plateH; set { _plateH = value; OnPropertyChanged(); } }
-        public string PlateB { get => _plateB; set { _plateB = value; OnPropertyChanged(); } }
-        public string PlateT { get => _plateT; set { _plateT = value; OnPropertyChanged(); } }
-
-        public string FlangeH { get => _flangeH; set { _flangeH = value; OnPropertyChanged(); } }
-        public string FlangeB { get => _flangeB; set { _flangeB = value; OnPropertyChanged(); } }
-        public string FlangeT { get => _flangeT; set { _flangeT = value; OnPropertyChanged(); } }
-        public string FlangeLb { get => _flangeLb; set { _flangeLb = value; OnPropertyChanged(); } }
-
-        public string StiffTr1 { get => _stiffTr1; set { _stiffTr1 = value; OnPropertyChanged(); } }
-        public string StiffTr2 { get => _stiffTr2; set { _stiffTr2 = value; OnPropertyChanged(); } }
-        public string StiffTbp { get => _stiffTbp; set { _stiffTbp = value; OnPropertyChanged(); } }
-        public string StiffTg { get => _stiffTg; set { _stiffTg = value; OnPropertyChanged(); } }
-        public string StiffTf { get => _stiffTf; set { _stiffTf = value; OnPropertyChanged(); } }
-        public string StiffLh { get => _stiffLh; set { _stiffLh = value; OnPropertyChanged(); } }
-        public string StiffHh { get => _stiffHh; set { _stiffHh = value; OnPropertyChanged(); } }
-        public string StiffTwp { get => _stiffTwp; set { _stiffTwp = value; OnPropertyChanged(); } }
-
-        public string BeamA { get => _beamA; set { _beamA = value; OnPropertyChanged(); } }
-        public string BeamP { get => _beamP; set { _beamP = value; OnPropertyChanged(); } }
-        public string BeamIz { get => _beamIz; set { _beamIz = value; OnPropertyChanged(); } }
-        public string BeamIy { get => _beamIy; set { _beamIy = value; OnPropertyChanged(); } }
-        public string BeamIx { get => _beamIx; set { _beamIx = value; OnPropertyChanged(); } }
-        public string BeamWz { get => _beamWz; set { _beamWz = value; OnPropertyChanged(); } }
-        public string BeamWy { get => _beamWy; set { _beamWy = value; OnPropertyChanged(); } }
-        public string BeamWx { get => _beamWx; set { _beamWx = value; OnPropertyChanged(); } }
-        public string BeamSz { get => _beamSz; set { _beamSz = value; OnPropertyChanged(); } }
-        public string BeamSy { get => _beamSy; set { _beamSy = value; OnPropertyChanged(); } }
-        public string Beamiz { get => _beamiz; set { _beamiz = value; OnPropertyChanged(); } }
-        public string Beamiy { get => _beamiy; set { _beamiy = value; OnPropertyChanged(); } }
-        public string BeamXo { get => _beamXo; set { _beamXo = value; OnPropertyChanged(); } }
-
         public string ColumnA { get => _columnA; set { _columnA = value; OnPropertyChanged(); } }
         public string ColumnP { get => _columnP; set { _columnP = value; OnPropertyChanged(); } }
         public string ColumnIz { get => _columnIz; set { _columnIz = value; OnPropertyChanged(); } }
@@ -1990,10 +1534,74 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         public string ColumnXo { get => _columnXo; set { _columnXo = value; OnPropertyChanged(); } }
         public string ColumnYo { get => _columnYo; set { _columnYo = value; OnPropertyChanged(); } }
 
+        #endregion
+        #region Пластина
+        //Пластина
+        private string _plateH;
+        private string _plateB;
+        private string _plateT;
+        public string PlateH { get => _plateH; set { _plateH = value; OnPropertyChanged(); } }
+        public string PlateB { get => _plateB; set { _plateB = value; OnPropertyChanged(); } }
+        public string PlateT { get => _plateT; set { _plateT = value; OnPropertyChanged(); } }
+
+        #endregion
+        #region Фланец
+        //Фланец
+        private string _flangeH;
+        private string _flangeB;
+        private string _flangeT;
+        private string _flangeLb;
+        public string FlangeH { get => _flangeH; set { _flangeH = value; OnPropertyChanged(); } }
+        public string FlangeB { get => _flangeB; set { _flangeB = value; OnPropertyChanged(); } }
+        public string FlangeT { get => _flangeT; set { _flangeT = value; OnPropertyChanged(); } }
+        public string FlangeLb { get => _flangeLb; set { _flangeLb = value; OnPropertyChanged(); } }
+
+        #endregion
+        #region Ребра жёсткости
+        //Ребра жёсткости
+        private string _stiffTr1;
+        private string _stiffTr2;
+        private string _stiffTbp;
+        private string _stiffTg;
+        private string _stiffTf;
+        private string _stiffLh;
+        private string _stiffHh;
+        private string _stiffTwp;
+        public string StiffTr1 { get => _stiffTr1; set { _stiffTr1 = value; OnPropertyChanged(); } }
+        public string StiffTr2 { get => _stiffTr2; set { _stiffTr2 = value; OnPropertyChanged(); } }
+        public string StiffTbp { get => _stiffTbp; set { _stiffTbp = value; OnPropertyChanged(); } }
+        public string StiffTg { get => _stiffTg; set { _stiffTg = value; OnPropertyChanged(); } }
+        public string StiffTf { get => _stiffTf; set { _stiffTf = value; OnPropertyChanged(); } }
+        public string StiffLh { get => _stiffLh; set { _stiffLh = value; OnPropertyChanged(); } }
+        public string StiffHh { get => _stiffHh; set { _stiffHh = value; OnPropertyChanged(); } }
+        public string StiffTwp { get => _stiffTwp; set { _stiffTwp = value; OnPropertyChanged(); } }
+
+        #endregion
+        #region Болты
+        //Версия исполнения болтов
+        private string _boltVersion;
+        //Межболтовые расстояния в координате Y (e1, p1…)
+        private string _boltCoordZ;
+        private string _boltDiameter;
+        private string _boltCount;
+        private string _boltRows;
+        private string _boltCoordY;
+        private string _boltCoordX;
+        private string _boltE1;
+        private string _boltP1;
+        private string _boltP2;
+        private string _boltP3;
+        private string _boltP4;
+        private string _boltP5;
+        private string _boltP6;
+        private string _boltP7;
+        private string _boltP8;
+        private string _boltP9;
+        private string _boltP10;
+        private string _boltD1;
+        private string _boltD2;
         public string BoltVersion { get => _boltVersion; set { _boltVersion = value; OnPropertyChanged(); } }
         public string BoltCoordZ { get => _boltCoordZ; set { _boltCoordZ = value; OnPropertyChanged(); } }
-        public string TableBrand { get => _tableBrand; set { _tableBrand = value; OnPropertyChanged(); } }
-
         public string BoltDiameter { get => _boltDiameter; set { _boltDiameter = value; OnPropertyChanged(); } }
         public string BoltCount { get => _boltCount; set { _boltCount = value; OnPropertyChanged(); } }
         public string BoltRows { get => _boltRows; set { _boltRows = value; OnPropertyChanged(); } }
@@ -2012,10 +1620,21 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         public string BoltP9 { get => _boltP9; set { _boltP9 = value; OnPropertyChanged(); } }
         public string BoltP10 { get => _boltP10; set { _boltP10 = value; OnPropertyChanged(); } }
         public string BoltD1 { get => _boltD1; set { _boltD1 = value; OnPropertyChanged(); } }
-        public string BoltD2 { get => _boltD2; set { _boltD2 = value; OnPropertyChanged(); } }
-
+        public string BoltD2 { get => _boltD2; set { _boltD2 = value; OnPropertyChanged(); } } 
+        #endregion
+        #region Сварка
+        private string _weldKf;
+        private string _weldKf1;
+        private string _weldKf2;
+        private string _weldKf3;
+        private string _weldKf4;
+        private string _weldKf5;
+        private string _weldKf6;
+        private string _weldKf7;
+        private string _weldKf8;
+        private string _weldKf9;
+        private string _weldKf10;
         public string WeldKf { get => _weldKf; set { _weldKf = value; OnPropertyChanged(); } }
-
         public string WeldKf1 { get => _weldKf1; set { _weldKf1 = value; OnPropertyChanged(); } }
         public string WeldKf2 { get => _weldKf2; set { _weldKf2 = value; OnPropertyChanged(); } }
         public string WeldKf3 { get => _weldKf3; set { _weldKf3 = value; OnPropertyChanged(); } }
@@ -2027,6 +1646,7 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         public string WeldKf9 { get => _weldKf9; set { _weldKf9 = value; OnPropertyChanged(); } }
         public string WeldKf10 { get => _weldKf10; set { _weldKf10 = value; OnPropertyChanged(); } }
 
+        #endregion
         /// <summary>Сбрасывает все свойства узла в пустые строки (начальное состояние).</summary>
         public void ClearAll()
         {
@@ -2039,8 +1659,8 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             Alpha = string.Empty; Beta = string.Empty; Gamma = string.Empty;
             Delta = string.Empty; Epsilon = string.Empty; Lambda = string.Empty;
             Variable = string.Empty; Sj = string.Empty; Sjo = string.Empty;
-            SectionH = string.Empty; SectionB = string.Empty;
-            SectionS = string.Empty; SectionT = string.Empty;
+            BeamH = string.Empty; BeamB = string.Empty;
+            BeamS = string.Empty; BeamT = string.Empty;
 
             ColumnH = string.Empty; ColumnB = string.Empty;
             ColumnS = string.Empty; ColumnT = string.Empty;
@@ -2093,6 +1713,16 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             return v.Value.ToString("0.###", CultureInfo.InvariantCulture);
         }
 
+        public static string F(string v)
+        {
+            if (string.IsNullOrWhiteSpace(v)) return string.Empty;
+            var t = v.Trim();
+            var normalized = t.Replace(',', '.');
+            if (double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
+                return d.ToString("0.###", CultureInfo.InvariantCulture);
+            return t;
+        }
+
         /// <summary>Форматирует массив double в строку с разделителем «; », пропуская нулевые значения.</summary>
         public static string FormatArray(double[] arr)
         {
@@ -2100,6 +1730,18 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
             var nonZero = arr.Where(v => v != 0).ToArray();
             if (nonZero.Length == 0) return string.Empty;
             return string.Join("; ", nonZero.Select(v => v.ToString("0.###", CultureInfo.InvariantCulture)));
+        }
+
+        public static string FormatArray(string[] arr)
+        {
+            if (arr == null || arr.Length == 0) return string.Empty;
+            var values = arr
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .Select(v => F(v))
+                .Where(v => !string.IsNullOrWhiteSpace(v) && v != "0")
+                .ToArray();
+            if (values.Length == 0) return string.Empty;
+            return string.Join("; ", values);
         }
 
         /// <summary>

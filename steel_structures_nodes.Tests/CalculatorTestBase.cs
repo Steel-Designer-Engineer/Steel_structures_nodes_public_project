@@ -1,8 +1,8 @@
-using Steel_structures_nodes_public_project.Calculate.Calculate;
-using Steel_structures_nodes_public_project.Calculate.Models;
-using Steel_structures_nodes_public_project.Calculate.Services;
+using steel_structures_nodes.Calculate.Calculate;
+using steel_structures_nodes.Calculate.Models;
+using steel_structures_nodes.Calculate.Services;
 
-namespace Steel_structures_nodes_public_project.Tests
+namespace steel_structures_nodes.Tests
 {
     /// <summary>
     /// Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РґР»СЏ РІСЃРµС… С‚РµСЃС‚РѕРІ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР° Р РЎ1 РёР· РїСЂРѕРµРєС‚Р° steel_structures_nodes.Calculate.

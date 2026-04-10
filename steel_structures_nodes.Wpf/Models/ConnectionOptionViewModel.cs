@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Wpf.Models
+namespace steel_structures_nodes.Wpf.Models
 {
     /// <summary>
     /// РњРѕРґРµР»СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РІР°СЂРёР°РЅС‚Р° СѓР·Р»РѕРІРѕРіРѕ СЃРѕРµРґРёРЅРµРЅРёСЏ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ РІС‹РїР°РґР°СЋС‰РµРј СЃРїРёСЃРєРµ.

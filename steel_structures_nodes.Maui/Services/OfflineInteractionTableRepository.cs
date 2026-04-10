@@ -1,7 +1,7 @@
-using Steel_structures_nodes_public_project.Domain.Entities;
-using Steel_structures_nodes_public_project.Domain.Repositories;
+using steel_structures_nodes.Domain.Contracts;
+using steel_structures_nodes.Domain.Entities;
 
-namespace Steel_structures_nodes_public_project.Maui.Services;
+namespace steel_structures_nodes.Maui.Services;
 
 /// <summary>
 /// Fallback-репозиторий, когда MongoDB недоступна.

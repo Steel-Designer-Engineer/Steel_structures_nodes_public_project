@@ -1,10 +1,12 @@
-namespace Steel_structures_nodes_public_project.Wpf.Models
+namespace steel_structures_nodes.Wpf.Models
 {
     /// <summary>
     /// Данные стандартного узла: несущая способность, коэффициенты взаимодействия и параметры сечения.
     /// </summary>
     public class StandardNodeData
     {
+        /// <summary>Тип узла(Rigid Joint - жесткое соединение, Hinged Joint - шарнирное соединение)</summary>
+        public string TypeNode { get; set; }
         /// <summary>
         /// Шаг1.1: Добавление имени профиля балки (например, <c>30Б2</c>).
         /// </summary>
@@ -67,10 +69,10 @@ namespace Steel_structures_nodes_public_project.Wpf.Models
         public double? Variable { get; set; }
         public double? Sj { get; set; }
         public double? Sjo { get; set; }
-        public double? SectionH { get; set; }
-        public double? SectionB { get; set; }
-        public double? SectionS { get; set; }
-        public double? SectionT { get; set; }
+        public double? BeamH { get; set; }
+        public double? BeamB { get; set; }
+        public double? BeamS { get; set; }
+        public double? BeamT { get; set; }
 
         // Геометрия колонны
         public double? ColumnH { get; set; }
@@ -153,7 +155,7 @@ namespace Steel_structures_nodes_public_project.Wpf.Models
         public double? BoltCoordZ { get; set; }
 
         // Сварка (катеты швов)
-        public double[] WeldKf { get; set; }
+        public string[] WeldKf { get; set; }
 
         // Верхний уровень
         public string TableBrand { get; set; }

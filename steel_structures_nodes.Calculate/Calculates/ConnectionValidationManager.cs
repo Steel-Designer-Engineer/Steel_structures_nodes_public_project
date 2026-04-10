@@ -4,7 +4,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
 
-namespace Steel_structures_nodes_public_project.Calculate
+namespace steel_structures_nodes.Calculate.Calculate
 {
     /// <summary>
     /// Настройка выпадающих списков (Data Validation) на расчётном листе

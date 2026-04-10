@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Maui;
+namespace steel_structures_nodes.Maui;
 
 public partial class App : Application
 {

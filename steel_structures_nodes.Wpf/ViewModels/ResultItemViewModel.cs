@@ -1,6 +1,6 @@
-using Steel_structures_nodes_public_project.Wpf.Mvvm;
+using steel_structures_nodes.Wpf.Mvvm;
 
-namespace Steel_structures_nodes_public_project.Wpf.ViewModels
+namespace steel_structures_nodes.Wpf.ViewModels
 {
     /// <summary>
     /// ViewModel СЌР»РµРјРµРЅС‚Р° СЂРµР·СѓР»СЊС‚Р°С‚Р° (РїР°СЂР° В«РєР»СЋС‡ вЂ” Р·РЅР°С‡РµРЅРёРµВ») РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ СЃРїРёСЃРєРµ.

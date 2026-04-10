@@ -2,16 +2,23 @@ using System;
 using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
-using Steel_structures_nodes_public_project.Calculate.Services;
-using Steel_structures_nodes_public_project.Wpf.Models;
+using steel_structures_nodes.Calculate.Services;
+using steel_structures_nodes.Wpf.Models;
 
-namespace Steel_structures_nodes_public_project.Wpf.Services
+namespace steel_structures_nodes.Wpf.Services
 {
     /// <summary>
     /// РЎРµСЂРІРёСЃ РґРёР°Р»РѕРіР° РёРјРїРѕСЂС‚Р° Excel: РѕС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р»РѕРІС‹Р№ РґРёР°Р»РѕРі Рё РїСЂРµРґР»Р°РіР°РµС‚ РІС‹Р±СЂР°С‚СЊ Р»РёСЃС‚.
     /// </summary>
     public sealed class ExcelImportDialogService : IExcelImportDialogService
     {
+        private readonly IExcelReader _excelReader;
+
+        public ExcelImportDialogService(IExcelReader excelReader)
+        {
+            _excelReader = excelReader ?? throw new ArgumentNullException(nameof(excelReader));
+        }
+
         public bool TryGetImportRequest(string kind, out ExcelImportRequest request)
         {
             request = null;
@@ -39,14 +46,13 @@ namespace Steel_structures_nodes_public_project.Wpf.Services
             return dlg.ShowDialog() == true ? dlg.FileName : null;
         }
 
-        private static string PromptSheetName(string kind, Window owner, string filePath)
+        private string PromptSheetName(string kind, Window owner, string filePath)
         {
             // Keep previous behavior: manual input. Some environments have issues reading workbook metadata.
             string hint = null;
             try
             {
-                var reader = new EpplusExcelReader();
-                var info = reader.GetWorkbookInfo(filePath);
+                var info = _excelReader.GetWorkbookInfo(filePath);
                 if (info?.SheetNames != null && info.SheetNames.Count > 0)
                     hint = string.Join(", ", info.SheetNames.Where(n => !string.IsNullOrWhiteSpace(n)).Take(8));
             }

@@ -1,6 +1,6 @@
-using Steel_structures_nodes_public_project.Wpf.Mvvm;
+using steel_structures_nodes.Wpf.Mvvm;
 
-namespace Steel_structures_nodes_public_project.Wpf.ViewModels
+namespace steel_structures_nodes.Wpf.ViewModels
 {
     /// <summary>
     /// Элемент сравнительной диаграммы: табличное значение vs расчётное.
@@ -32,6 +32,9 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         /// </summary>
         private double _tableBarWidth;
         private double _calcBarWidth;
+        private double _userValue;
+        private string _userText;
+        private double _userBarWidth;
         private string _ratioText;
         private bool _isOverLimit;
 
@@ -42,6 +45,9 @@ namespace Steel_structures_nodes_public_project.Wpf.ViewModels
         public string CalcText { get => _calcText; set { _calcText = value; OnPropertyChanged(); } }
         public double TableBarWidth { get => _tableBarWidth; set { _tableBarWidth = value; OnPropertyChanged(); } }
         public double CalcBarWidth { get => _calcBarWidth; set { _calcBarWidth = value; OnPropertyChanged(); } }
+        public double UserValue { get => _userValue; set { _userValue = value; OnPropertyChanged(); } }
+        public string UserText { get => _userText; set { _userText = value; OnPropertyChanged(); } }
+        public double UserBarWidth { get => _userBarWidth; set { _userBarWidth = value; OnPropertyChanged(); } }
         /// <summary>Текст соотношения расчётного к табличному (например, «85%» или «—»).</summary>
         public string RatioText { get => _ratioText; set { _ratioText = value; OnPropertyChanged(); } }
         /// <summary>true, если расчётное значение превышает табличное.</summary>

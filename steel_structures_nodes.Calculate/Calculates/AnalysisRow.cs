@@ -1,6 +1,6 @@
 using System;
 
-namespace Steel_structures_nodes_public_project.Calculate
+namespace steel_structures_nodes.Calculate.Calculate
 {
     /// <summary>
     /// Строка таблицы анализа РС1: содержит усилия, коэффициенты U и ψ.

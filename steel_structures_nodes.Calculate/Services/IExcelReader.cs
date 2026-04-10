@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Steel_structures_nodes_public_project.Calculate.Models;
+using steel_structures_nodes.Calculate.Models;
 
-namespace Steel_structures_nodes_public_project.Calculate.Services
+namespace steel_structures_nodes.Calculate.Services
 {
     /// <summary>
     /// Интерфейс чтения Excel-файлов: получение информации о книге и данных РСУ/РСН.

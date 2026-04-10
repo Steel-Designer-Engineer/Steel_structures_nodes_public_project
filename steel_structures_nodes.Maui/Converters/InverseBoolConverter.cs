@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Steel_structures_nodes_public_project.Maui.Converters;
+namespace steel_structures_nodes.Maui.Converters;
 
 /// <summary>
 /// Инвертирует bool: true → false, false → true.

@@ -1,7 +1,7 @@
 using Android.App;
 using Android.Runtime;
 
-namespace Steel_structures_nodes_public_project.Maui;
+namespace steel_structures_nodes.Maui;
 
 [Application]
 public class MainApplication : MauiApplication

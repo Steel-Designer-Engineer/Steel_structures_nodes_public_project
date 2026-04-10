@@ -6,13 +6,14 @@
     <OutputType>Exe</OutputType>
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
+    <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- Включить компиляцию байндингов с явным Source (устраняет XC0025) -->
     <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 
     <ApplicationTitle>Анализ узлов</ApplicationTitle>
-    <ApplicationId>com.Steel_structures_nodes_public_project.maui</ApplicationId>
+    <ApplicationId>com.steel_structures_nodes.maui</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 
@@ -31,9 +32,9 @@
     <VCToolsInstallDir Condition="'$(VCToolsInstallDir)' == ''">$(MSBuildThisFileDirectory)</VCToolsInstallDir>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Steel_structures_nodes_public_project.Domain\Steel_structures_nodes_public_project_public_project.Domain.csproj" />
-    <ProjectReference Include="..\Steel_structures_nodes_public_project.Data\Steel_structures_nodes_public_project.Data.csproj" />
-    <ProjectReference Include="..\Steel_structures_nodes_public_project.Calculate\Steel_structures_nodes_public_project_public_project.Calculate.csproj" />
+    <ProjectReference Include="..\steel_structures_nodes.Domain\steel_structures_nodes.Domain.csproj" />
+    <ProjectReference Include="..\steel_structures_nodes.Data\steel_structures_nodes.Data.csproj" />
+    <ProjectReference Include="..\steel_structures_nodes.Calculate\steel_structures_nodes.Calculate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="EPPlus" Version="8.4.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.41" />
   </ItemGroup>
 
   <ItemGroup>

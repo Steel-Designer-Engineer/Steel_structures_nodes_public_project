@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Maui.Controls;
+namespace steel_structures_nodes.Maui.Controls;
 
 /// <summary>
 /// Отображает строковое значение с кнопкой ⧉ для копирования в буфер обмена.

@@ -1,6 +1,6 @@
-using Steel_structures_nodes_public_project.Maui.ViewModels;
+using steel_structures_nodes.Maui.ViewModels;
 
-namespace Steel_structures_nodes_public_project.Maui;
+namespace steel_structures_nodes.Maui;
 
 public partial class MainPage : ContentPage
 {

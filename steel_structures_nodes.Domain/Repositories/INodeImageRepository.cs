@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Domain.Repositories;
+namespace steel_structures_nodes.Domain.Repositories;
 
 /// <summary>
 /// Репозиторий изображений узлов (коллекция NodeNotesImagesDB).

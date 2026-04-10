@@ -1,7 +1,7 @@
 <Solution>
-  <Project Path="steel_structures_nodes.Calculate/Steel_structures_nodes_public_project.Calculate.csproj" />
-  <Project Path="steel_structures_nodes.Domain/Steel_structures_nodes_public_project.Domain.csproj" />
-  <Project Path="steel_structures_nodes.Maui/Steel_structures_nodes_public_project.Maui.csproj" />
-  <Project Path="steel_structures_nodes.Tests/Steel_structures_nodes_public_project.Tests.csproj" />
-  <Project Path="steel_structures_nodes.Wpf/Steel_structures_nodes_public_project.Wpf.csproj" />
+  <Project Path="steel_structures_nodes.Calculate/steel_structures_nodes.Calculate.csproj" />
+  <Project Path="steel_structures_nodes.Domain/steel_structures_nodes.Domain.csproj" DisplayName="Steel_structures_nodes.Domain" />
+  <Project Path="steel_structures_nodes.Maui/steel_structures_nodes.Maui.csproj" />
+  <Project Path="steel_structures_nodes.Tests/steel_structures_nodes.Tests.csproj" />
+  <Project Path="steel_structures_nodes.Wpf/steel_structures_nodes.Wpf.csproj" />
 </Solution>

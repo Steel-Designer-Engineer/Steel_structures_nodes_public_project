@@ -1,4 +1,4 @@
-namespace Steel_structures_nodes_public_project.Calculate.Models.RSN
+namespace steel_structures_nodes.Calculate.Models.RSN
 {
     /// <summary>
     /// Строка данных РСН (расчётные сочетания нагрузок). Содержит дополнительное поле типа элемента.

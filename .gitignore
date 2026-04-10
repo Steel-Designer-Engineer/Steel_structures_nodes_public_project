@@ -105,5 +105,3 @@ TestResults/
 # WPF production assets (large data, user-specific profiles)
 /steel_structures_nodes.Wpf/Assets/
 
-# Защита данных
-/steel_structures_nodes.Data/
