@@ -20,6 +20,9 @@ public record Rs1SummaryForces(
 
 public partial class MainViewModel : ObservableObject
 {
+    private const string ExampleMongoHost = "example.mongodb.local";
+    private const int ExampleMongoPort = 27017;
+
     private readonly IInteractionTableLookupRepository _interactionTableLookupRepository;
     private readonly IInteractionTableReadRepository _interactionTableReadRepository;
     private readonly IDataAccessFailureNotifier _dataAccessFailureNotifier;
@@ -253,12 +256,12 @@ public partial class MainViewModel : ObservableObject
             var log = new System.Text.StringBuilder();
 
             // 1. TCP connectivity test
-            log.AppendLine("1) TCP → 72.56.72.77:32017...");
+            log.AppendLine($"1) TCP → {ExampleMongoHost}:{ExampleMongoPort}...");
             Status = log.ToString();
             try
             {
                 using var tcp = new TcpClient();
-                var connectTask = tcp.ConnectAsync("72.56.72.77", 32017);
+                var connectTask = tcp.ConnectAsync(ExampleMongoHost, ExampleMongoPort);
                 if (await Task.WhenAny(connectTask, Task.Delay(5000)) == connectTask)
                 {
                     await connectTask; // propagate exception if any

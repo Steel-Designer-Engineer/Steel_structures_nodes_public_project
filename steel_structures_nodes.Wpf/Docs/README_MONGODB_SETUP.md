@@ -8,7 +8,7 @@
 
 ### Коллекции MongoDB
 
-База данных располагается по адресу: **72.56.72.77:32017**
+База данных располагается по адресу: **example.mongodb.local:27017**
 База данных: **HingedJointDB**
 
 
@@ -55,9 +55,9 @@
 
 ### 1. Доступ к MongoDB
 
-MongoDB сервер располагается по адресу: **72.56.72.77:32017**
+MongoDB сервер располагается по адресу: **example.mongodb.local:27017**
 База данных: **HingedJointDB**
-Аутентификация: admin / xxx711717XXX (authSource=admin)
+Аутентификация: задаётся локально через `appsettings.json`, переменные окружения или user-secrets
 
 ### 2. Настройте строку подключения
 
@@ -83,6 +83,21 @@ services.AddSingleton<IMongoDatabase>(database);
 services.AddDataLayer();
 ```
 
+Для локальной разработки можно переопределить значения через переменные окружения:
+
+```powershell
+$env:STEEL_ConnectionStrings__MongoDB = "mongodb://username:password@example.mongodb.local:27017/?authSource=admin"
+$env:STEEL_DatabaseSettings__DatabaseName = "HingedJointDB"
+```
+
+Или через `user-secrets`:
+
+```powershell
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:MongoDB" "mongodb://username:password@example.mongodb.local:27017/?authSource=admin"
+dotnet user-secrets set "DatabaseSettings:DatabaseName" "HingedJointDB"
+```
+
 ## Миграция данных из JSON в MongoDB
 
 **Важно:** Данные для `InteractionTable` и `Profile` уже находятся в MongoDB (коллекции `all_node` и `profile`). Миграция требуется только для `AlbumCapacities`.
@@ -94,10 +109,10 @@ services.AddDataLayer();
 ```csharp
 using HingedJoint.Data.Migration;
 
-var mongoConnectionString = "mongodb://admin:xxx711717XXX@72.56.72.77:32017/?authSource=admin&directConnection=true&tls=false";
+var mongoConnectionString = "mongodb://username:password@example.mongodb.local:27017/?authSource=admin";
 var databaseName = "HingedJointDB";
 
-var albumCapacitiesPath = @"C:\Users\length\source\repos\HingedJoint\HingedJoint.Wpf\Assets\album_capacities.json";
+var albumCapacitiesPath = @"C:\path\to\project\HingedJoint.Wpf\Assets\album_capacities.json";
 // interaction_tables.json НЕ ИСПОЛЬЗУЕТСЯ - данные в коллекции 'all_node'
 // Profile.json НЕ ИСПОЛЬЗУЕТСЯ - данные в коллекции 'profile'
 
@@ -213,7 +228,7 @@ public class ProfileService
 
 ## Замечания
 
-- MongoDB сервер располагается по адресу **72.56.72.77:32017**, база данных **HingedJointDB**
+- MongoDB сервер располагается по адресу **example.mongodb.local:27017**, база данных **HingedJointDB**
 - **Коллекция `all_node` должна уже существовать** с данными таблиц взаимодействия
 - **Коллекция `profile` должна уже существовать** с данными профилей металлоконструкций
 - JSON-файлы `interaction_tables.json` и `Profile.json` **НЕ ИСПОЛЬЗУЮТСЯ** - данные читаются напрямую из MongoDB
@@ -223,7 +238,7 @@ public class ProfileService
 
 ## Следующие шаги
 
-1. Убедитесь, что в MongoDB (72.56.72.77:32017) существует база данных `HingedJointDB` с коллекциями:
+1. Убедитесь, что в MongoDB (`example.mongodb.local:27017`) существует база данных `HingedJointDB` с коллекциями:
    - `all_node` (таблицы взаимодействия)
    - `profile` (профили металлоконструкций)
 2. При необходимости мигрируйте данные для `AlbumCapacities` из JSON

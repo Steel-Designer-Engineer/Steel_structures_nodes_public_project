@@ -24,6 +24,7 @@ public static class MauiProgram
         using var stream = Task.Run(() => FileSystem.OpenAppPackageFileAsync("appsettings.json")).GetAwaiter().GetResult();
         var config = new ConfigurationBuilder()
             .AddJsonStream(stream)
+            .AddEnvironmentVariables(prefix: "STEEL_")
             .Build();
 
         builder.Configuration.AddConfiguration(config);

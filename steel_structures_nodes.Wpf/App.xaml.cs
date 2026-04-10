@@ -61,7 +61,8 @@ namespace steel_structures_nodes.Wpf
 
                 var builder = new ConfigurationBuilder()
                     .SetBasePath(baseDir)
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddEnvironmentVariables(prefix: "STEEL_");
 
                 Configuration = builder.Build();
                 Console.WriteLine("✓ Configuration loaded successfully");
@@ -88,7 +89,7 @@ namespace steel_structures_nodes.Wpf
             {
                 var errorMsg = $"Файл конфигурации не найден:\n{ex.Message}\n\n" +
                     $"Ожидаемый путь: {Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json")}\n\n" +
-                    $"Убедитесь, что файл steel_structures_nodes.Data\\appsettings.json существует и проект собран корректно.";
+                    $"Убедитесь, что файл appsettings.json существует или заданы переменные окружения STEEL_*.";
                 Console.WriteLine($"✗ ERROR: {errorMsg}");
                 MessageBox.Show(errorMsg, "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();

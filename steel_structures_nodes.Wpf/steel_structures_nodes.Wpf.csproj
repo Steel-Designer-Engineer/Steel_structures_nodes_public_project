@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
@@ -37,9 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="..\steel_structures_nodes.Data\appsettings.json">
+    <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>appsettings.json</Link>
     </None>
     <Resource Include="appicon.png" />
     <None Update="appicon.png">
@@ -50,7 +50,7 @@
 
   <!-- Copy appsettings.json from Data project after build -->
   <Target Name="CopyAppsettings" AfterTargets="Build">
-    <Copy SourceFiles="..\steel_structures_nodes.Data\appsettings.json" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="appsettings.json" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 
   <ItemGroup>
